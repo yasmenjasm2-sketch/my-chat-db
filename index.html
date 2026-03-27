@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم قاعدة البيانات السحابية</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; text-align: center; }
+        .container { max-width: 500px; background: white; padding: 30px; border-radius: 15px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #218838; }
+        #status { margin-top: 20px; font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🚀 لوحة تحكم الشات</h2>
+    <p>أرسل أوامر أو رسائل مباشرة لقاعدة البيانات</p>
+    
+    <input type="text" id="adminName" placeholder="اسم المسؤول (مثلاً: Admin)" value="Admin">
+    <textarea id="adminMsg" rows="4" placeholder="اكتب الأمر أو الرسالة هنا..."></textarea>
+    
+    <button onclick="sendToCloud()">إرسال الآن (بث سحابي)</button>
+    
+    <div id="status">جاهز للإرسال...</div>
+</div>
+
+<script>
+    // الإعدادات (نفس بياناتك)
+    const TOKEN = "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";
+    const REPO = "yasmenjasm2-sketch/my-chat-db";
+    const FILE_PATH = "chat_db.json";
+
+    async function sendToCloud() {
+        const name = document.getElementById('adminName').value;
+        const text = document.getElementById('adminMsg').value;
+        const statusDiv = document.getElementById('status');
+
+        if (!text) { alert("اكتب رسالة أولاً!"); return; }
+
+        statusDiv.innerHTML = "⏳ جاري الاتصال بغيت هوب...";
+
+        try {
+            // 1. جلب الملف الحالي للحصول على الـ SHA (ضروري للتحديث)
+            const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+                headers: { "Authorization": `token ${TOKEN}` }
+            });
+            const fileData = await getRes.json();
+            const sha = fileData.sha;
+            const content = JSON.parse(atob(fileData.content)); // فك تشفير البيانات من Base64
+
+            // 2. إضافة الرسالة الجديدة للبيانات
+            if (!content.messages) content.messages = [];
+            content.messages.push({
+                _id: Math.random().toString(36).substr(2, 8),
+                sender: name,
+                text: text,
+                time: new Date().toLocaleString()
+            });
+
+            // 3. رفع الملف المحدث
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 4))));
+            const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${TOKEN}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: "Admin update from Web Dashboard",
+                    content: updatedContent,
+                    sha: sha
+                })
+            });
+
+            if (putRes.ok) {
+                statusDiv.innerHTML = "✅ تم تحديث قاعدة البيانات بنجاح!";
+                document.getElementById('adminMsg').value = "";
+            } else {
+                statusDiv.innerHTML = "❌ فشل التحديث: " + putRes.statusText;
+            }
+
+        } catch (error) {
+            statusDiv.innerHTML = "❌ خطأ في الاتصال: " + error.message;
+        }
+    }
+</script>
+
+</body>
+</html>
