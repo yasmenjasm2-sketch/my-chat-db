@@ -3,107 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تجربة ذكاء FawakihAI</title>
+    <title>نجاح العقلاء | لخدمات الإعلان</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .chat-container { width: 400px; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
-        .chat-header { background: #007bff; color: white; padding: 15px; text-align: center; font-weight: bold; }
-        #chat-box { height: 400px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .message { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 14px; }
-        .user { background: #007bff; color: white; align-self: flex-start; }
-        .ai { background: #e9ecef; color: #333; align-self: flex-end; }
-        .input-area { display: flex; padding: 10px; border-top: 1px solid #ddd; }
-        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; outline: none; }
-        button { background: #28a745; color: white; border: none; padding: 10px 15px; margin-right: 5px; border-radius: 5px; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        .status { font-size: 10px; text-align: center; color: #888; padding: 5px; }
+        :root {
+            --primary-color: #d4af37; /* ذهبي ملكي */
+            --accent-blue: #0095f6; /* لون التوثيق */
+            --dark-bg: #0f0f0f;
+            --card-bg: #1e1e1e;
+            --text-white: #ffffff;
+            --text-gray: #b0b0b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #1a1a1a 0%, #0f0f0f 100%);
+            color: var(--text-white);
+            line-height: 1.6;
+        }
+
+        /* علامة التوثيق */
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        /* الهيدر */
+        header {
+            background-color: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #333;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text-white);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        /* الواجهة الرئيسية */
+        .hero {
+            text-align: center;
+            padding: 120px 20px;
+            background: linear-gradient(to bottom, rgba(212, 175, 55, 0.05), transparent);
+        }
+
+        .hero h2 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #fff, var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* البطاقات */
+        .profile-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            max-width: 450px;
+            margin: 40px auto;
+            text-align: center;
+        }
+
+        .profile-pic {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 3px solid var(--primary-color);
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
+        /* النموذج */
+        .contact-section {
+            max-width: 700px;
+            margin: 60px auto;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 8px;
+            outline: none;
+        }
+        
+        .form-group select option {
+            background: var(--card-bg);
+            color: white;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* تنسيق خاص لحقل رقم الهاتف ورمز الدولة */
+        .phone-group {
+            display: flex;
+            gap: 10px;
+            direction: ltr; /* لجعل الأرقام من اليسار لليمين */
+        }
+
+        .phone-group select {
+            width: 35%;
+            direction: rtl; /* لجعل أسماء الدول من اليمين */
+        }
+
+        .phone-group input {
+            width: 65%;
+            text-align: left;
+        }
+
+        /* تسمية اختياري */
+        .optional-label {
+            color: var(--text-gray);
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+
+        .btn-submit {
+            background: var(--primary-color);
+            color: #000;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-gray);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 600px) {
+            .hero h2 { font-size: 2rem; }
+            nav { display: none; }
+            .phone-group { flex-direction: column; direction: rtl; }
+            .phone-group select, .phone-group input { width: 100%; }
+            .phone-group input { text-align: right; direction: ltr; }
+        }
     </style>
 </head>
 <body>
 
-<div class="chat-container">
-    <div class="chat-header">اختبار مفتاح Gemini عبر GitHub</div>
-    <div id="chat-box">
-        <div class="message ai">مرحباً! جاري جلب الإعدادات من GitHub...</div>
-    </div>
-    <div class="input-area">
-        <input type="text" id="user-input" placeholder="اكتب سؤالك هنا..." disabled>
-        <button id="send-btn" disabled>إرسال</button>
-    </div>
-    <div id="status" class="status">جاري الاتصال بـ GitHub...</div>
-</div>
+    <header>
+        <h1>
+            Najah Alogla 
+            <span class="verified-badge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.707 19.13L4.007 13.43L5.427 12.01L9.707 16.29L18.577 7.42L19.997 8.84L9.707 19.13Z" fill="white"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM11.007 16.558L7.461 13.012L8.522 11.951L11.007 14.436L16.485 8.958L17.546 10.019L11.007 16.558Z" fill="#0095f6"/>
+                </svg>
+            </span>
+        </h1>
+        <nav>
+            <a href="#home">الرئيسية</a>
+            <a href="#instagram">إنستقرام</a>
+            <a href="#request">طلب إعلان</a>
+        </nav>
+    </header>
 
-<script>
-    const GITHUB_URL = "https://raw.githubusercontent.com/yasmenjasm2-sketch/my-chat-db/refs/heads/main/ai_config.json";
-    let API_KEY = "";
-    
-    const chatBox = document.getElementById('chat-box');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-    const statusDiv = document.getElementById('status');
+    <section id="home" class="hero">
+        <h2>نصنع لخدمتكم أثراً</h2>
+        <p>الوجهة الأولى للإعلانات الاحترافية والمحتوى الإبداعي</p>
+    </section>
 
-    // 1. جلب المفتاح من GitHub عند تحميل الصفحة
-    async function fetchConfig() {
-        try {
-            const response = await fetch(GITHUB_URL);
-            const config = await response.json();
-            API_KEY = config.api_key;
+    <section id="instagram" class="instagram-section">
+        <div class="profile-card">
+            <img id="ig-image" class="profile-pic" src="https://ui-avatars.com/api/?name=Najah+Alogla&background=d4af37&color=fff" alt="Profile">
+            <h3 style="display: flex; justify-content: center; align-items: center; gap: 5px;">
+                Najah Alogla 
+                <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM11.007 16.558L7.461 13.012L8.522 11.951L11.007 14.436L16.485 8.958L17.546 10.019L11.007 16.558Z" fill="#0095f6"/></svg>
+            </h3>
+            <p dir="ltr" style="color: var(--text-gray); margin-bottom: 20px;">@8.alogla</p>
+            <a href="https://www.instagram.com/8.alogla?igsh=MXVwcm1rM3E4MzN4ag==" target="_blank" class="btn-submit" style="text-decoration: none; display: block;">متابعة على إنستقرام</a>
+        </div>
+    </section>
+
+    <section id="request" class="contact-section">
+        <div class="form-container">
+            <h2 style="text-align: center; margin-bottom: 25px;">طلب إعلان جديد</h2>
+            <form id="tgForm">
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="cust_name" required placeholder="مثلاً: شركة الحلول الذكية">
+                </div>
+                
+                <div class="form-group" style="direction: rtl;">
+                    <label>رقم التواصل <span class="optional-label">(مطلوب)</span></label>
+                    <div class="phone-group">
+                        <select id="country_code" required>
+                            <optgroup label="دول الشرق الأوسط">
+                                <option value="+966">السعودية (+966)</option>
+                                <option value="+971">الإمارات (+971)</option>
+                                <option value="+965">الكويت (+965)</option>
+                                <option value="+974">قطر (+974)</option>
+                                <option value="+973">البحرين (+973)</option>
+                                <option value="+968">عُمان (+968)</option>
+                                <option value="+964">العراق (+964)</option>
+                                <option value="+962">الأردن (+962)</option>
+                                <option value="+970">فلسطين (+970)</option>
+                                <option value="+961">لبنان (+961)</option>
+                                <option value="+963">سوريا (+963)</option>
+                                <option value="+967">اليمن (+967)</option>
+                                <option value="+20">مصر (+20)</option>
+                                <option value="+98">إيران (+98)</option>
+                                <option value="+90">تركيا (+90)</option>
+                            </optgroup>
+                            <optgroup label="دول أوروبا">
+                                <option value="+44">بريطانيا (+44)</option>
+                                <option value="+33">فرنسا (+33)</option>
+                                <option value="+49">ألمانيا (+49)</option>
+                                <option value="+39">إيطاليا (+39)</option>
+                                <option value="+34">إسبانيا (+34)</option>
+                                <option value="+31">هولندا (+31)</option>
+                                <option value="+32">بلجيكا (+32)</option>
+                                <option value="+41">سويسرا (+41)</option>
+                                <option value="+46">السويد (+46)</option>
+                                <option value="+47">النرويج (+47)</option>
+                                <option value="+45">الدنمارك (+45)</option>
+                                <option value="+358">فنلندا (+358)</option>
+                                <option value="+48">بولندا (+48)</option>
+                                <option value="+43">النمسا (+43)</option>
+                                <option value="+30">اليونان (+30)</option>
+                                <option value="+351">البرتغال (+351)</option>
+                                <option value="+353">أيرلندا (+353)</option>
+                            </optgroup>
+                            <optgroup label="دول أخرى">
+                                <option value="+1">أمريكا / كندا (+1)</option>
+                                <option value="+61">أستراليا (+61)</option>
+                                <option value="+91">الهند (+91)</option>
+                                <option value="+86">الصين (+86)</option>
+                                <option value="+212">المغرب (+212)</option>
+                                <option value="+213">الجزائر (+213)</option>
+                                <option value="+216">تونس (+216)</option>
+                                <option value="+218">ليبيا (+218)</option>
+                                <option value="+249">السودان (+249)</option>
+                            </optgroup>
+                        </select>
+                        <input type="tel" id="cust_phone" required placeholder="رقم الهاتف بدون صفر البداية">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>البريد الإلكتروني <span class="optional-label">(اختياري)</span></label>
+                    <input type="email" id="cust_email" placeholder="example@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label>نوع الإعلان</label>
+                    <select id="ad_type">
+                        <option>تغطية ميدانية</option>
+                        <option>إعلان ستوري</option>
+                        <option>بوست ثابت</option>
+                        <option>مراجعة منتج</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>تفاصيل إضافية</label>
+                    <textarea id="ad_desc" required placeholder="اكتب هنا ما تريد الترويج له..."></textarea>
+                </div>
+                <button type="submit" class="btn-submit">إرسال الطلب </button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 نجاح العقلاء | Najah Alogla. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script>
+        // إعدادات البوت
+        const BOT_TOKEN = "7894436976:AAFdg77dpzCgpeLnkwAQqP9POkwZMwWoikg";
+        const CHAT_ID = "-1003783270855";
+
+        // جلب صورة الحساب
+        async function fetchIG() {
+            try {
+                const res = await fetch(`https://api.microlink.io/?url=https://www.instagram.com/8.alogla/`);
+                const json = await res.json();
+                if(json.data.image.url) document.getElementById('ig-image').src = json.data.image.url;
+            } catch(e) { console.log("IG Image Error"); }
+        }
+        fetchIG();
+
+        // إرسال الطلب للتليجرام
+        document.getElementById('tgForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            if (API_KEY) {
-                statusDiv.innerText = "متصل بـ GitHub وجاهز للعمل ✅";
-                userInput.disabled = false;
-                sendBtn.disabled = false;
-                appendMessage("ai", "تم جلب المفتاح بنجاح. يمكنك التحدث معي الآن!");
+            const name = document.getElementById('cust_name').value;
+            const code = document.getElementById('country_code').value;
+            const phone = document.getElementById('cust_phone').value;
+            const email = document.getElementById('cust_email').value;
+            const type = document.getElementById('ad_type').value;
+            const desc = document.getElementById('ad_desc').value;
+
+            // دمج كود الدولة مع الرقم مع مسح المسافات
+            const fullPhone = `${code}${phone.replace(/^0+/, '')}`; // إزالة الصفر من بداية الرقم إن وُجد
+            
+            // إضافة سطر الإيميل فقط إذا قام المستخدم بكتابته
+            const emailText = email ? `\n📧 *الإيميل:* \`${email}\`` : '';
+
+            const message = `
+📣 *طلب إعلان جديد*
+--------------------------
+👤 *العميل:* ${name}
+📱 *الرقم:* \`${fullPhone}\`${emailText}
+🎯 *النوع:* ${type}
+📝 *التفاصيل:*
+${desc}
+--------------------------
+تم الإرسال من موقعك الرسمي.
+            `;
+
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+            
+            // تغيير نص الزر أثناء الإرسال
+            const btn = document.querySelector('.btn-submit');
+            const originalBtnText = btn.innerText;
+            btn.innerText = 'جاري الإرسال...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                if (response.ok) {
+                    alert("✅ تم إرسال طلبك بنجاح! سنتواصل معك قريباً.");
+                    e.target.reset();
+                } else {
+                    alert("❌ حدث خطأ في الإرسال، يرجى المحاولة لاحقاً.");
+                }
+            } catch (err) {
+                alert("❌ فشل الاتصال بخوادم تليجرام.");
+            } finally {
+                // إعادة الزر لحالته الطبيعية
+                btn.innerText = originalBtnText;
+                btn.disabled = false;
             }
-        } catch (error) {
-            statusDiv.innerText = "خطأ في جلب الإعدادات ❌";
-            appendMessage("ai", "لم أتمكن من الوصول لملف GitHub. تأكد من الرابط.");
-        }
-    }
-
-    // 2. دالة إرسال الرسالة لـ Gemini
-    async function sendMessage() {
-        const text = userInput.value.trim();
-        if (!text) return;
-
-        appendMessage("user", text);
-        userInput.value = "";
-        sendBtn.disabled = true;
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
-        
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: text }] }]
-                })
-            });
-
-            const data = await response.json();
-            const aiResponse = data.candidates[0].content.parts[0].text;
-            appendMessage("ai", aiResponse);
-        } catch (error) {
-            appendMessage("ai", "حدث خطأ أثناء الاتصال بالذكاء الاصطناعي.");
-        } finally {
-            sendBtn.disabled = false;
-        }
-    }
-
-    function appendMessage(sender, text) {
-        const div = document.createElement('div');
-        div.className = `message ${sender}`;
-        div.innerText = text;
-        chatBox.appendChild(div);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    sendBtn.onclick = sendMessage;
-    userInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
-
-    fetchConfig();
-</script>
-
+        });
+    </script>
 </body>
 </html>
