@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ج<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -352,7 +352,21 @@
         // إرسال الطلب للتليجرام
         document.getElementById('tgForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+            // 1. تجهيز نسخة من البيانات للأدمن
+const adminData = {
+    name: document.getElementById('cust_name').value,
+    phone: document.getElementById('country_code').value + document.getElementById('cust_phone').value,
+    email: document.getElementById('cust_email').value || "لا يوجد",
+    type: document.getElementById('ad_type').value,
+    desc: document.getElementById('ad_desc').value,
+    date: new Date().toLocaleString('ar-SA')
+};
+
+// 2. السطر السحري الذي يحفظها في المتصفح لكي يراها ملف admin.html
+let orders = JSON.parse(localStorage.getItem('najah_orders') || '[]');
+orders.push(adminData);
+localStorage.setItem('najah_orders', JSON.stringify(orders));
+
             const name = document.getElementById('cust_name').value;
             const code = document.getElementById('country_code').value;
             const phone = document.getElementById('cust_phone').value;
