@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إدارة مشاريع نجاح العقلاء</title>
+    <style>
+        body { background: #0f0f0f; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 30px; }
+        .admin-panel { max-width: 1000px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d4af37; padding-bottom: 20px; margin-bottom: 30px; }
+        .card { background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-right: 5px solid #d4af37; position: relative; }
+        .card h3 { color: #d4af37; margin: 0 0 10px 0; }
+        .card p { margin: 5px 0; color: #ccc; }
+        .card .date { font-size: 0.8rem; color: #666; position: absolute; left: 20px; top: 20px; }
+        .copy-btn { background: #d4af37; color: #000; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; float: left; }
+        .empty { text-align: center; padding: 50px; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="admin-panel">
+    <div class="header">
+        <h1>إدارة الطلبات الواردة 📋</h1>
+        <button onclick="clearAll()" style="background:none; color:#ff4d4d; border:1px solid #ff4d4d; padding:5px 10px; cursor:pointer; border-radius:5px;">مسح الكل</button>
+    </div>
+
+    <div id="ordersContainer">
+        </div>
+</div>
+
+<script>
+    function loadOrders() {
+        const container = document.getElementById('ordersContainer');
+        const orders = JSON.parse(localStorage.getItem('najah_orders') || '[]');
+
+        if (orders.length === 0) {
+            container.innerHTML = '<div class="empty">لا توجد طلبات جديدة حالياً.</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        orders.reverse().forEach((order, index) => {
+            container.innerHTML += `
+                <div class="card">
+                    <span class="date">${order.date}</span>
+                    <h3>${order.name} <small style="color:#0095f6; font-size:0.7rem;">(طلب جديد)</small></h3>
+                    <p><strong>نوع الإعلان:</strong> ${order.type}</p>
+                    <p><strong>التواصل:</strong> ${order.phone} | ${order.email}</p>
+                    <p><strong>التفاصيل:</strong> ${order.desc}</p>
+                    <button class="copy-btn" onclick="copyText('${order.phone}')">نسخ رقم العميل</button>
+                    <button class="delete-btn" onclick="deleteOrder(${index})">حذف الطلب</button>
+                </div>
+            `;
+        });
+    }
+
+    function copyText(text) {
+        navigator.clipboard.writeText(text);
+        alert("تم نسخ الرقم: " + text);
+    }
+
+    function deleteOrder(index) {
+        let orders = JSON.parse(localStorage.getItem('najah_orders') || '[]');
+        orders.reverse().splice(index, 1);
+        orders.reverse();
+        localStorage.setItem('najah_orders', JSON.stringify(orders));
+        loadOrders();
+    }
+
+    function clearAll() {
+        if(confirm("هل تريد مسح جميع السجلات؟")) {
+            localStorage.removeItem('najah_orders');
+            loadOrders();
+        }
+    }
+
+    // تحديث الصفحة تلقائياً كل دقيقة لرؤية الجديد
+    setInterval(loadOrders, 60000);
+    loadOrders();
+</script>
+
+</body>
+</html>
