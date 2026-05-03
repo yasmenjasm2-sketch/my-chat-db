@@ -1,32 +1,117 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إعلان Fawakih AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم إعلانات Fawakih AI</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: black;
-            overflow: hidden; /* منع التمرير */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        video {
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             width: 100%;
-            height: 100%;
-            object-fit: contain; /* يعرض الفيديو بالكامل مع الحفاظ على الأبعاد */
+            max-width: 400px;
+            text-align: center;
         }
+        h2 { color: #9D4EDD; margin-bottom: 20px; }
+        input[type="file"], input[type="number"] {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        button {
+            background-color: #9D4EDD;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #7b2cbf; }
+        #status { margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <video autoplay loop muted playsinline>
-        <source src="htmlcc.mp4" type="video/mp4">
-        متصفحك الحالي لا يدعم تشغيل الفيديو.
-    </video>
+
+<div class="container">
+    <h2>رفع إعلان جديد 🚀</h2>
+    
+    <label>اختر صورة أو فيديو:</label>
+    <input type="file" id="mediaFile" accept="image/*,video/*">
+    
+    <label>مدة الإعلان (بالثواني):</label>
+    <input type="number" id="adDuration" placeholder="مثال: 5" value="5" min="1">
+    
+    <button onclick="sendAdToTelegram()" id="sendBtn">إرسال للتطبيق</button>
+    
+    <div id="status"></div>
+</div>
+
+<script>
+    // بيانات البوت الخاصة بك
+    const BOT_TOKEN = "7894436976:AAFdg77dpzCgpeLnkwAQqP9POkwZMwWoikg"; // ⚠️ ضع التوكن الحقيقي هنا
+    const CHAT_ID = "5998250367";
+
+    async function sendAdToTelegram() {
+        const fileInput = document.getElementById('mediaFile');
+        const durationInput = document.getElementById('adDuration').value;
+        const statusDiv = document.getElementById('status');
+        const btn = document.getElementById('sendBtn');
+
+        if (fileInput.files.length === 0) {
+            statusDiv.innerHTML = "<span style='color:red;'>يرجى اختيار ملف أولاً!</span>";
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const isVideo = file.type.startsWith('video/');
+        const apiUrl = `https://api.telegram.org/bot${BOT_TOKEN}/${isVideo ? 'sendVideo' : 'sendPhoto'}`;
+
+        const formData = new FormData();
+        formData.append("chat_id", CHAT_ID);
+        formData.append(isVideo ? "video" : "photo", file);
+        formData.append("caption", durationInput); // سنرسل المدة كنص مع الصورة/الفيديو
+
+        btn.disabled = true;
+        btn.innerText = "جاري الإرسال...";
+        statusDiv.innerHTML = "";
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.ok) {
+                statusDiv.innerHTML = "<span style='color:green;'>تم إرسال الإعلان للتطبيق بنجاح! ✅</span>";
+            } else {
+                statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الإرسال!</span>";
+                console.error(result);
+            }
+        } catch (error) {
+            statusDiv.innerHTML = "<span style='color:red;'>فشل الاتصال بالإنترنت!</span>";
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "إرسال للتطبيق";
+        }
+    }
+</script>
+
 </body>
 </html>
