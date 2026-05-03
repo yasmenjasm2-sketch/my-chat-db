@@ -6,7 +6,6 @@
     <title>لوحة تحكم إعلانات Fawakih AI</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
         body {
@@ -54,8 +53,6 @@
         }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
         button:hover:not(:disabled) { background-color: #7b2cbf; }
-        .btn-delete { background-color: #f44336; margin-top: 15px; }
-        .btn-delete:hover:not(:disabled) { background-color: #d32f2f; }
         
         /* شريط التقدم */
         #progressContainer {
@@ -72,13 +69,14 @@
             background-color: #9D4EDD;
             transition: width 0.2s;
         }
-        #status { margin-top: 15px; font-weight: bold; font-size: 14px; }
+        #status { margin-top: 15px; font-weight: bold; font-size: 14px; line-height: 1.6; }
+        .code-box { background: #f8f9fa; border: 1px dashed #9D4EDD; padding: 10px; margin-top: 10px; border-radius: 8px; font-family: monospace; font-size: 16px; color: #333; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>إدارة الإعلانات 🚀</h2>
+    <h2>إدارة الإعلانات عبر تليجرام 🚀</h2>
     
     <label>اختر صورة أو فيديو:</label>
     <input type="file" id="mediaFile" accept="image/*,video/*">
@@ -90,14 +88,13 @@
         <div id="progressBar"></div>
     </div>
 
-    <button onclick="uploadAd()" id="sendBtn">نشر الإعلان للتطبيق</button>
-    <button onclick="deleteAd()" class="btn-delete" id="deleteBtn">إيقاف وحذف الإعلان</button>
+    <button onclick="uploadAd()" id="sendBtn">رفع وإرسال إلى تليجرام</button>
     
     <div id="status"></div>
 </div>
 
 <script>
-    // إعدادات Firebase الخاصة بك (بقيت كما هي)
+    // إعدادات Firebase الخاصة بك (نستخدمها فقط لرفع الملف وإنشاء الرابط)
     const firebaseConfig = {
         apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
         databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
@@ -105,12 +102,10 @@
         storageBucket: "mehamzaalanat.firebasestorage.app"
     };
 
-    // تهيئة Firebase
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
     const storage = firebase.storage();
-    const database = firebase.database();
 
     function uploadAd() {
         const fileInput = document.getElementById('mediaFile');
@@ -126,66 +121,64 @@
         }
 
         const file = fileInput.files[0];
-        const isVideo = file.type.startsWith('video/');
         const fileName = "ads/" + Date.now() + "_" + file.name;
 
-        // تجهيز الواجهة للرفع
         btn.disabled = true;
         progressContainer.style.display = "block";
         progressBar.style.width = "0%";
-        statusDiv.innerHTML = "جاري الاتصال بالخادم... ⏳";
+        statusDiv.innerHTML = "جاري رفع الملف وإنشاء الرابط... ⏳";
 
-        // البدء بعملية الرفع مع مراقبة التقدم
         const storageRef = storage.ref(fileName);
         const uploadTask = storageRef.put(file);
 
         uploadTask.on('state_changed', 
             (snapshot) => {
-                // حساب نسبة التقدم
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 progressBar.style.width = progress + "%";
-                statusDiv.innerHTML = `جاري الرفع: ${Math.round(progress)}% ⏳`;
             }, 
             (error) => {
-                // في حال حدوث خطأ
                 console.error(error);
-                statusDiv.innerHTML = "<span style='color:red;'>❌ فشل الرفع! تأكد من إعدادات الحماية (Rules) في Firebase.</span>";
+                statusDiv.innerHTML = "<span style='color:red;'>❌ فشل الرفع! تأكد من إعدادات الحماية.</span>";
                 btn.disabled = false;
             }, 
             () => {
-                // عند اكتمال الرفع بنجاح
                 uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    database.ref('active_ad').set({
-                        mediaUrl: downloadURL,
-                        isVideo: isVideo,
-                        duration: parseInt(durationInput),
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    }).then(() => {
-                        statusDiv.innerHTML = "<span style='color:green;'>✅ تم نشر الإعلان بنجاح!</span>";
+                    statusDiv.innerHTML = "جاري الإرسال إلى تليجرام... 🚀";
+                    
+                    // 1. توليد رمز الإعلان (74 + رقمين عشوائيين)
+                    const randomLastTwo = Math.floor(10 + Math.random() * 90); // من 10 إلى 99
+                    const secretCode = "74" + randomLastTwo;
+
+                    // 2. تجهيز النص بالصيغة التي سيفهمها التطبيق (الرابط,المدة,الرمز)
+                    const messageText = `${downloadURL},${durationInput},${secretCode}`;
+
+                    // 3. إرسال الرسالة إلى تليجرام
+                    const botToken = "7894436976:AAFdg77dpzCgpeLnkwAQqP9POkwZMwWoikg";
+                    const chatId = "5998250367";
+                    const tgUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(messageText)}`;
+
+                    fetch(tgUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.ok) {
+                            statusDiv.innerHTML = `
+                                <span style='color:green;'>✅ تم نشر الإعلان وإرساله لتليجرام بنجاح!</span>
+                                <div class="code-box">الرمز المولد: <b>${secretCode}</b><br><br>⚠️ تذكر: لكي يقرأ التطبيق هذا الإعلان، قم بنسخ الرسالة التي وصلتك من البوت وأعد إرسالها إليه مرة أخرى.</div>
+                            `;
+                            btn.disabled = false;
+                            setTimeout(() => { progressContainer.style.display = "none"; }, 3000);
+                        } else {
+                            statusDiv.innerHTML = "<span style='color:red;'>❌ حدث خطأ أثناء الإرسال لتليجرام.</span>";
+                            btn.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        statusDiv.innerHTML = "<span style='color:red;'>❌ فشل الاتصال بتليجرام.</span>";
                         btn.disabled = false;
-                        // إخفاء شريط التقدم بعد فترة قصيرة
-                        setTimeout(() => { progressContainer.style.display = "none"; }, 3000);
                     });
                 });
             }
         );
-    }
-
-    async function deleteAd() {
-        const statusDiv = document.getElementById('status');
-        const btn = document.getElementById('deleteBtn');
-        
-        if(confirm("هل أنت متأكد من حذف الإعلان الحالي؟")) {
-            btn.disabled = true;
-            try {
-                await database.ref('active_ad').remove();
-                statusDiv.innerHTML = "<span style='color:green;'>❌ تم حذف الإعلان بنجاح.</span>";
-            } catch(e) {
-                statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الحذف.</span>";
-            } finally {
-                btn.disabled = false;
-            }
-        }
     }
 </script>
 
