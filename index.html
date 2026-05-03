@@ -10,47 +10,69 @@
     
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
         .container {
             background-color: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            width: 90%;
             max-width: 400px;
             text-align: center;
         }
         h2 { color: #9D4EDD; margin-bottom: 20px; }
+        label { display: block; text-align: right; margin: 10px 5px 5px; font-weight: bold; font-size: 14px; }
         input[type="file"], input[type="number"] {
-            width: 90%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #eee;
             border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
         }
+        input:focus { border-color: #9D4EDD; }
         button {
             background-color: #9D4EDD;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 14px;
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
             font-size: 16px;
             margin-top: 10px;
             font-weight: bold;
+            transition: 0.3s;
         }
-        button:hover { background-color: #7b2cbf; }
-        .btn-delete { background-color: #D32F2F; }
-        .btn-delete:hover { background-color: #b71c1c; }
-        #status { margin-top: 15px; font-weight: bold; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        button:hover:not(:disabled) { background-color: #7b2cbf; }
+        .btn-delete { background-color: #f44336; margin-top: 15px; }
+        .btn-delete:hover:not(:disabled) { background-color: #d32f2f; }
+        
+        /* شريط التقدم */
+        #progressContainer {
+            display: none;
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        #progressBar {
+            width: 0%;
+            height: 10px;
+            background-color: #9D4EDD;
+            transition: width 0.2s;
+        }
+        #status { margin-top: 15px; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -64,14 +86,18 @@
     <label>مدة الإعلان (بالثواني):</label>
     <input type="number" id="adDuration" placeholder="مثال: 5" value="5" min="1">
     
+    <div id="progressContainer">
+        <div id="progressBar"></div>
+    </div>
+
     <button onclick="uploadAd()" id="sendBtn">نشر الإعلان للتطبيق</button>
-    <button onclick="deleteAd()" class="btn-delete" id="deleteBtn">إيقاف/حذف الإعلان الحالي</button>
+    <button onclick="deleteAd()" class="btn-delete" id="deleteBtn">إيقاف وحذف الإعلان</button>
     
     <div id="status"></div>
 </div>
 
 <script>
-    // إعدادات مشروعك
+    // إعدادات Firebase الخاصة بك (بقيت كما هي)
     const firebaseConfig = {
         apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
         databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
@@ -80,18 +106,22 @@
     };
 
     // تهيئة Firebase
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const storage = firebase.storage();
     const database = firebase.database();
 
-    async function uploadAd() {
+    function uploadAd() {
         const fileInput = document.getElementById('mediaFile');
         const durationInput = document.getElementById('adDuration').value;
         const statusDiv = document.getElementById('status');
         const btn = document.getElementById('sendBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
 
         if (fileInput.files.length === 0) {
-            statusDiv.innerHTML = "<span style='color:red;'>يرجى اختيار ملف أولاً!</span>";
+            statusDiv.innerHTML = "<span style='color:red;'>⚠️ يرجى اختيار ملف أولاً!</span>";
             return;
         }
 
@@ -99,42 +129,61 @@
         const isVideo = file.type.startsWith('video/');
         const fileName = "ads/" + Date.now() + "_" + file.name;
 
+        // تجهيز الواجهة للرفع
         btn.disabled = true;
-        btn.innerText = "جاري الرفع...";
-        statusDiv.innerHTML = "<span style='color:blue;'>جاري رفع الملف إلى الخوادم... ⏳</span>";
+        progressContainer.style.display = "block";
+        progressBar.style.width = "0%";
+        statusDiv.innerHTML = "جاري الاتصال بالخادم... ⏳";
 
-        try {
-            // 1. رفع الملف إلى Firebase Storage
-            const storageRef = storage.ref(fileName);
-            const snapshot = await storageRef.put(file);
-            const downloadURL = await snapshot.ref.getDownloadURL();
+        // البدء بعملية الرفع مع مراقبة التقدم
+        const storageRef = storage.ref(fileName);
+        const uploadTask = storageRef.put(file);
 
-            // 2. تحديث قاعدة البيانات بالإعلان النشط
-            await database.ref('active_ad').set({
-                mediaUrl: downloadURL,
-                isVideo: isVideo,
-                duration: parseInt(durationInput),
-                timestamp: Date.now()
-            });
-
-            statusDiv.innerHTML = "<span style='color:green;'>تم نشر الإعلان للمستخدمين بنجاح! ✅</span>";
-        } catch (error) {
-            console.error(error);
-            statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الرفع! تأكد من صلاحيات Firebase.</span>";
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "نشر الإعلان للتطبيق";
-        }
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                // حساب نسبة التقدم
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progressBar.style.width = progress + "%";
+                statusDiv.innerHTML = `جاري الرفع: ${Math.round(progress)}% ⏳`;
+            }, 
+            (error) => {
+                // في حال حدوث خطأ
+                console.error(error);
+                statusDiv.innerHTML = "<span style='color:red;'>❌ فشل الرفع! تأكد من إعدادات الحماية (Rules) في Firebase.</span>";
+                btn.disabled = false;
+            }, 
+            () => {
+                // عند اكتمال الرفع بنجاح
+                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    database.ref('active_ad').set({
+                        mediaUrl: downloadURL,
+                        isVideo: isVideo,
+                        duration: parseInt(durationInput),
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        statusDiv.innerHTML = "<span style='color:green;'>✅ تم نشر الإعلان بنجاح!</span>";
+                        btn.disabled = false;
+                        // إخفاء شريط التقدم بعد فترة قصيرة
+                        setTimeout(() => { progressContainer.style.display = "none"; }, 3000);
+                    });
+                });
+            }
+        );
     }
 
     async function deleteAd() {
         const statusDiv = document.getElementById('status');
-        if(confirm("هل أنت متأكد أنك تريد إيقاف الإعلان الحالي من التطبيق؟")) {
+        const btn = document.getElementById('deleteBtn');
+        
+        if(confirm("هل أنت متأكد من حذف الإعلان الحالي؟")) {
+            btn.disabled = true;
             try {
                 await database.ref('active_ad').remove();
-                statusDiv.innerHTML = "<span style='color:green;'>تم إيقاف وحذف الإعلان بنجاح! ❌</span>";
+                statusDiv.innerHTML = "<span style='color:green;'>❌ تم حذف الإعلان بنجاح.</span>";
             } catch(e) {
-                statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الحذف!</span>";
+                statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الحذف.</span>";
+            } finally {
+                btn.disabled = false;
             }
         }
     }
