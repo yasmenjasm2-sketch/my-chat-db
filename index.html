@@ -4,22 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم إعلانات Fawakih AI</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background-color: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
         h2 { color: #9D4EDD; margin-bottom: 20px; }
-        input[type="file"], input[type="number"] { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; }
-        button { color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; }
-        .btn-send { background-color: #9D4EDD; }
-        .btn-send:hover { background-color: #7b2cbf; }
-        .btn-delete { background-color: #D32F2F; margin-top: 15px;}
+        input[type="file"], input[type="number"] {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        button {
+            background-color: #9D4EDD;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        button:hover { background-color: #7b2cbf; }
+        .btn-delete { background-color: #D32F2F; }
         .btn-delete:hover { background-color: #b71c1c; }
         #status { margin-top: 15px; font-weight: bold; }
-        .progress-bar { width: 0%; height: 5px; background-color: #9D4EDD; margin-top: 10px; border-radius: 5px; transition: width 0.3s; }
     </style>
 </head>
 <body>
@@ -31,18 +62,16 @@
     <input type="file" id="mediaFile" accept="image/*,video/*">
     
     <label>مدة الإعلان (بالثواني):</label>
-    <input type="number" id="adDuration" value="5" min="1">
+    <input type="number" id="adDuration" placeholder="مثال: 5" value="5" min="1">
     
-    <button onclick="uploadAd()" class="btn-send" id="sendBtn">نشر الإعلان في التطبيق</button>
-    <div id="progressBar" class="progress-bar"></div>
+    <button onclick="uploadAd()" id="sendBtn">نشر الإعلان للتطبيق</button>
+    <button onclick="deleteAd()" class="btn-delete" id="deleteBtn">إيقاف/حذف الإعلان الحالي</button>
     
-    <button onclick="deleteAd()" class="btn-delete" id="deleteBtn">إيقاف وحذف الإعلان الحالي 🗑️</button>
-
     <div id="status"></div>
 </div>
 
 <script>
-    // إعدادات فايربيز المستخرجة من ملف google-services.json الخاص بك
+    // إعدادات مشروعك
     const firebaseConfig = {
         apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
         databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
@@ -50,17 +79,16 @@
         storageBucket: "mehamzaalanat.firebasestorage.app"
     };
 
-    // تهيئة فايربيز
+    // تهيئة Firebase
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
     const storage = firebase.storage();
+    const database = firebase.database();
 
     async function uploadAd() {
         const fileInput = document.getElementById('mediaFile');
-        const duration = document.getElementById('adDuration').value;
+        const durationInput = document.getElementById('adDuration').value;
         const statusDiv = document.getElementById('status');
         const btn = document.getElementById('sendBtn');
-        const progressBar = document.getElementById('progressBar');
 
         if (fileInput.files.length === 0) {
             statusDiv.innerHTML = "<span style='color:red;'>يرجى اختيار ملف أولاً!</span>";
@@ -69,54 +97,46 @@
 
         const file = fileInput.files[0];
         const isVideo = file.type.startsWith('video/');
-        const storageRef = storage.ref('ads/' + file.name);
+        const fileName = "ads/" + Date.now() + "_" + file.name;
 
         btn.disabled = true;
         btn.innerText = "جاري الرفع...";
-        statusDiv.innerHTML = "";
+        statusDiv.innerHTML = "<span style='color:blue;'>جاري رفع الملف إلى الخوادم... ⏳</span>";
 
-        // رفع الملف
-        const uploadTask = storageRef.put(file);
+        try {
+            // 1. رفع الملف إلى Firebase Storage
+            const storageRef = storage.ref(fileName);
+            const snapshot = await storageRef.put(file);
+            const downloadURL = await snapshot.ref.getDownloadURL();
 
-        uploadTask.on('state_changed', 
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                progressBar.style.width = progress + '%';
-            }, 
-            (error) => {
-                statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الرفع!</span>";
-                btn.disabled = false;
-                btn.innerText = "نشر الإعلان في التطبيق";
-            }, 
-            () => {
-                // الحصول على الرابط بعد نجاح الرفع
-                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    // حفظ البيانات في قاعدة البيانات
-                    database.ref('CurrentAd').set({
-                        url: downloadURL,
-                        isVideo: isVideo,
-                        duration: parseInt(duration),
-                        isActive: true // لتفعيل الإعلان
-                    }).then(() => {
-                        statusDiv.innerHTML = "<span style='color:green;'>تم نشر الإعلان بنجاح! ✅</span>";
-                        btn.disabled = false;
-                        btn.innerText = "نشر الإعلان في التطبيق";
-                        progressBar.style.width = '0%';
-                    });
-                });
-            }
-        );
+            // 2. تحديث قاعدة البيانات بالإعلان النشط
+            await database.ref('active_ad').set({
+                mediaUrl: downloadURL,
+                isVideo: isVideo,
+                duration: parseInt(durationInput),
+                timestamp: Date.now()
+            });
+
+            statusDiv.innerHTML = "<span style='color:green;'>تم نشر الإعلان للمستخدمين بنجاح! ✅</span>";
+        } catch (error) {
+            console.error(error);
+            statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الرفع! تأكد من صلاحيات Firebase.</span>";
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "نشر الإعلان للتطبيق";
+        }
     }
 
-    function deleteAd() {
+    async function deleteAd() {
         const statusDiv = document.getElementById('status');
-        // تغيير حالة الإعلان إلى غير نشط وإزالة الرابط
-        database.ref('CurrentAd').update({
-            isActive: false,
-            url: ""
-        }).then(() => {
-            statusDiv.innerHTML = "<span style='color:orange;'>تم إيقاف الإعلان وإخفاؤه من التطبيق 🛑</span>";
-        });
+        if(confirm("هل أنت متأكد أنك تريد إيقاف الإعلان الحالي من التطبيق؟")) {
+            try {
+                await database.ref('active_ad').remove();
+                statusDiv.innerHTML = "<span style='color:green;'>تم إيقاف وحذف الإعلان بنجاح! ❌</span>";
+            } catch(e) {
+                statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الحذف!</span>";
+            }
+        }
     }
 </script>
 
