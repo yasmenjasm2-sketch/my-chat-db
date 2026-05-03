@@ -4,74 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم إعلانات Fawakih AI</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+    
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
         h2 { color: #9D4EDD; margin-bottom: 20px; }
-        input[type="file"], input[type="number"] {
-            width: 90%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-        button {
-            background-color: #9D4EDD;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-        button:hover { background-color: #7b2cbf; }
+        input[type="file"], input[type="number"] { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; }
+        button { color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; }
+        .btn-send { background-color: #9D4EDD; }
+        .btn-send:hover { background-color: #7b2cbf; }
+        .btn-delete { background-color: #D32F2F; margin-top: 15px;}
+        .btn-delete:hover { background-color: #b71c1c; }
         #status { margin-top: 15px; font-weight: bold; }
+        .progress-bar { width: 0%; height: 5px; background-color: #9D4EDD; margin-top: 10px; border-radius: 5px; transition: width 0.3s; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>رفع إعلان جديد 🚀</h2>
+    <h2>إدارة الإعلانات 🚀</h2>
     
     <label>اختر صورة أو فيديو:</label>
     <input type="file" id="mediaFile" accept="image/*,video/*">
     
     <label>مدة الإعلان (بالثواني):</label>
-    <input type="number" id="adDuration" placeholder="مثال: 5" value="5" min="1">
+    <input type="number" id="adDuration" value="5" min="1">
     
-    <button onclick="sendAdToTelegram()" id="sendBtn">إرسال للتطبيق</button>
+    <button onclick="uploadAd()" class="btn-send" id="sendBtn">نشر الإعلان في التطبيق</button>
+    <div id="progressBar" class="progress-bar"></div>
     
+    <button onclick="deleteAd()" class="btn-delete" id="deleteBtn">إيقاف وحذف الإعلان الحالي 🗑️</button>
+
     <div id="status"></div>
 </div>
 
 <script>
-    // بيانات البوت الخاصة بك
-    const BOT_TOKEN = "7894436976:AAFdg77dpzCgpeLnkwAQqP9POkwZMwWoikg"; // ⚠️ ضع التوكن الحقيقي هنا
-    const CHAT_ID = "5998250367";
+    // إعدادات فايربيز المستخرجة من ملف google-services.json الخاص بك
+    const firebaseConfig = {
+        apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
+        databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mehamzaalanat",
+        storageBucket: "mehamzaalanat.firebasestorage.app"
+    };
 
-    async function sendAdToTelegram() {
+    // تهيئة فايربيز
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const storage = firebase.storage();
+
+    async function uploadAd() {
         const fileInput = document.getElementById('mediaFile');
-        const durationInput = document.getElementById('adDuration').value;
+        const duration = document.getElementById('adDuration').value;
         const statusDiv = document.getElementById('status');
         const btn = document.getElementById('sendBtn');
+        const progressBar = document.getElementById('progressBar');
 
         if (fileInput.files.length === 0) {
             statusDiv.innerHTML = "<span style='color:red;'>يرجى اختيار ملف أولاً!</span>";
@@ -80,36 +69,54 @@
 
         const file = fileInput.files[0];
         const isVideo = file.type.startsWith('video/');
-        const apiUrl = `https://api.telegram.org/bot${BOT_TOKEN}/${isVideo ? 'sendVideo' : 'sendPhoto'}`;
-
-        const formData = new FormData();
-        formData.append("chat_id", CHAT_ID);
-        formData.append(isVideo ? "video" : "photo", file);
-        formData.append("caption", durationInput); // سنرسل المدة كنص مع الصورة/الفيديو
+        const storageRef = storage.ref('ads/' + file.name);
 
         btn.disabled = true;
-        btn.innerText = "جاري الإرسال...";
+        btn.innerText = "جاري الرفع...";
         statusDiv.innerHTML = "";
 
-        try {
-            const response = await fetch(apiUrl, {
-                method: "POST",
-                body: formData
-            });
+        // رفع الملف
+        const uploadTask = storageRef.put(file);
 
-            const result = await response.json();
-            if (result.ok) {
-                statusDiv.innerHTML = "<span style='color:green;'>تم إرسال الإعلان للتطبيق بنجاح! ✅</span>";
-            } else {
-                statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الإرسال!</span>";
-                console.error(result);
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progressBar.style.width = progress + '%';
+            }, 
+            (error) => {
+                statusDiv.innerHTML = "<span style='color:red;'>حدث خطأ أثناء الرفع!</span>";
+                btn.disabled = false;
+                btn.innerText = "نشر الإعلان في التطبيق";
+            }, 
+            () => {
+                // الحصول على الرابط بعد نجاح الرفع
+                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    // حفظ البيانات في قاعدة البيانات
+                    database.ref('CurrentAd').set({
+                        url: downloadURL,
+                        isVideo: isVideo,
+                        duration: parseInt(duration),
+                        isActive: true // لتفعيل الإعلان
+                    }).then(() => {
+                        statusDiv.innerHTML = "<span style='color:green;'>تم نشر الإعلان بنجاح! ✅</span>";
+                        btn.disabled = false;
+                        btn.innerText = "نشر الإعلان في التطبيق";
+                        progressBar.style.width = '0%';
+                    });
+                });
             }
-        } catch (error) {
-            statusDiv.innerHTML = "<span style='color:red;'>فشل الاتصال بالإنترنت!</span>";
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "إرسال للتطبيق";
-        }
+        );
+    }
+
+    function deleteAd() {
+        const statusDiv = document.getElementById('status');
+        // تغيير حالة الإعلان إلى غير نشط وإزالة الرابط
+        database.ref('CurrentAd').update({
+            isActive: false,
+            url: ""
+        }).then(() => {
+            statusDiv.innerHTML = "<span style='color:orange;'>تم إيقاف الإعلان وإخفاؤه من التطبيق 🛑</span>";
+        });
     }
 </script>
 
