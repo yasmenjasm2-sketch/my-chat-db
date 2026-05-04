@@ -3,38 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم الإعلانات</title>
+    <title>لوحة تحكم الإعلانات - الرفع المباشر</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .admin-card { background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 100%; max-width: 400px; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; outline: none; background: #2d2d2d; color: white; }
-        button { width: 100%; padding: 12px; background: #9D4EDD; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .admin-card { background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 90%; max-width: 400px; }
+        h2 { text-align: center; color: #9D4EDD; }
+        label { display: block; margin-top: 15px; font-size: 14px; color: #bbb; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #333; outline: none; background: #2d2d2d; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #9D4EDD; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; transition: 0.3s; }
         button:hover { background: #7b2cbf; }
-        .status { margin-top: 15px; text-align: center; font-size: 14px; color: #4CAF50; }
+        button:disabled { background: #555; cursor: not-allowed; }
+        .progress-container { width: 100%; background-color: #333; border-radius: 10px; margin-top: 15px; display: none; }
+        .progress-bar { width: 0%; height: 10px; background-color: #9D4EDD; border-radius: 10px; transition: width 0.3s; }
+        .status { margin-top: 15px; text-align: center; font-size: 14px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="admin-card">
         <h2>إدارة الإعلانات ⚙️</h2>
-        <label>نوع الإعلان:</label>
+        
+        <label>1. نوع الإعلان:</label>
         <select id="adType">
             <option value="image">صورة</option>
             <option value="video">فيديو</option>
         </select>
 
-        <label>رابط الإعلان (URL):</label>
-        <input type="text" id="adUrl" placeholder="https://example.com/ad.jpg أو .mp4">
+        <label>2. اختر الملف من الاستوديو:</label>
+        <input type="file" id="fileInput" accept="image/*,video/*">
 
-        <label>حالة الإعلان:</label>
+        <label>3. حالة الإعلان:</label>
         <select id="adStatus">
-            <option value="active">مفعل</option>
-            <option value="inactive">معطل (حذف الإعلان)</option>
+            <option value="active">مفعل (نشر الآن)</option>
+            <option value="inactive">معطل (إخفاء الإعلان)</option>
         </select>
 
-        <button onclick="updateAd()">تحديث الإعلان</button>
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <button id="uploadBtn" onclick="uploadAndSave()">رفع وتحديث الإعلان</button>
+        
         <div class="status" id="statusMessage"></div>
     </div>
 
@@ -42,30 +54,78 @@
         // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
+            authDomain: "mehamzaalanat.firebaseapp.com",
             databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "mehamzaalanat",
             storageBucket: "mehamzaalanat.firebasestorage.app",
             appId: "1:10248497310:android:bc2b88983738827f15338f"
         };
+        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const storage = firebase.storage();
 
-        function updateAd() {
-            const type = document.getElementById('adType').value;
-            const url = document.getElementById('adUrl').value;
-            const status = document.getElementById('adStatus').value === 'active';
+        function uploadAndSave() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const adType = document.getElementById('adType').value;
+            const adStatus = document.getElementById('adStatus').value === 'active';
+            const statusMsg = document.getElementById('statusMessage');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const progContainer = document.getElementById('progressContainer');
+            const progBar = document.getElementById('progressBar');
 
-            db.ref('current_ad').set({
-                type: type,
-                url: url,
-                isActive: status
-            }).then(() => {
-                document.getElementById('statusMessage').innerText = "✅ تم تحديث الإعلان بنجاح!";
-                setTimeout(() => document.getElementById('statusMessage').innerText = "", 3000);
-            }).catch((error) => {
-                document.getElementById('statusMessage').innerText = "❌ خطأ: " + error.message;
-                document.getElementById('statusMessage').style.color = "red";
-            });
+            // إذا لم يتم اختيار ملف، فقط نقوم بتحديث الحالة (إذا كان هناك إعلان سابق)
+            if (!file) {
+                statusMsg.innerText = "⚠️ يرجى اختيار ملف أولاً!";
+                statusMsg.style.color = "orange";
+                return;
+            }
+
+            uploadBtn.disabled = true;
+            progContainer.style.display = 'block';
+            statusMsg.innerText = "جاري الرفع... يرجى الانتظار";
+            statusMsg.style.color = "white";
+
+            // إنشاء مرجع للملف في الاستورج باسم فريد
+            const fileName = 'ad_' + Date.now() + '_' + file.name;
+            const storageRef = storage.ref('ads/' + fileName);
+            const uploadTask = storageRef.put(file);
+
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    // تحديث شريط التقدم
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progBar.style.width = progress + '%';
+                }, 
+                (error) => {
+                    // في حال حدوث خطأ
+                    statusMsg.innerText = "❌ خطأ في الرفع: " + error.message;
+                    statusMsg.style.color = "red";
+                    uploadBtn.disabled = false;
+                }, 
+                () => {
+                    // عند اكتمال الرفع بنجاح
+                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                        // الآن نقوم بحفظ الرابط والمعلومات في قاعدة البيانات (Realtime Database)
+                        db.ref('current_ad').set({
+                            type: adType,
+                            url: downloadURL,
+                            isActive: adStatus,
+                            updatedAt: firebase.database.ServerValue.TIMESTAMP
+                        }).then(() => {
+                            statusMsg.innerText = "✅ تم الرفع وتحديث الإعلان بنجاح!";
+                            statusMsg.style.color = "#4CAF50";
+                            uploadBtn.disabled = false;
+                            fileInput.value = ""; // تفريغ اختيار الملف
+                            setTimeout(() => {
+                                progContainer.style.display = 'none';
+                                progBar.style.width = '0%';
+                            }, 3000);
+                        });
+                    });
+                }
+            );
         }
     </script>
 </body>
