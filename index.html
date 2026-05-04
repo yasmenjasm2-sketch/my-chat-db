@@ -4,31 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ad Viewer</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            background-color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            /* منع التحديد والتفاعل */
-            user-select: none; 
-            -webkit-user-select: none;
-            pointer-events: none; 
+            margin: 0; padding: 0; background-color: transparent; display: flex;
+            justify-content: center; align-items: center; height: 100vh; overflow: hidden;
+            user-select: none; -webkit-user-select: none;
         }
-        img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            /* منع سحب الصورة أو النقر عليها */
-            pointer-events: none;
-            -webkit-user-drag: none; 
+        .ad-container {
+            position: relative; width: 100%; height: 100%; display: flex;
+            justify-content: center; align-items: center; background: #000;
         }
+        img, video {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+            pointer-events: none; -webkit-user-drag: none;
+        }
+        /* شارة الإعلان الاحترافية */
+        .ad-badge {
+            position: absolute; bottom: 20px; left: 20px;
+            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);
+            color: white; padding: 5px 12px; border-radius: 20px;
+            font-family: sans-serif; font-size: 12px; border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 10;
+        }
+        /* تأثير التحميل */
+        .loader {
+            border: 4px solid rgba(255,255,255,0.1); border-left-color: #9D4EDD;
+            border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;
+            position: absolute;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body oncontextmenu="return false;"> <img src="benk.jpg" alt="Ad">
+<body oncontextmenu="return false;">
+
+    <div class="ad-container" id="adContainer">
+        <div class="loader" id="loader"></div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
+            databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mehamzaalanat",
+            storageBucket: "mehamzaalanat.firebasestorage.app",
+            appId: "1:10248497310:android:bc2b88983738827f15338f"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const adContainer = document.getElementById('adContainer');
+        const loader = document.getElementById('loader');
+
+        // الاستماع لتغييرات الإعلان في الوقت الفعلي
+        db.ref('current_ad').on('value', (snapshot) => {
+            const adData = snapshot.val();
+            adContainer.innerHTML = ''; // تنظيف الحاوية
+
+            if (adData && adData.isActive && adData.url) {
+                if (adData.type === 'video') {
+                    adContainer.innerHTML = `
+                        <video src="${adData.url}" autoplay muted loop playsinline></video>
+                        <div class="ad-badge">إعلان ممول 📢</div>
+                    `;
+                } else {
+                    adContainer.innerHTML = `
+                        <img src="${adData.url}" alt="Ad">
+                        <div class="ad-badge">إعلان ممول 📢</div>
+                    `;
+                }
+            } else {
+                // إذا كان الإعلان معطل من لوحة التحكم، اجعل الشاشة شفافة لتختفي
+                document.body.style.display = 'none'; 
+            }
+        });
+    </script>
 </body>
 </html>
