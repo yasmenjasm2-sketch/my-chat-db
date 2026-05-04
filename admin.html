@@ -2,82 +2,71 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إدارة مشاريع نجاح العقلاء</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الإعلانات</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #0f0f0f; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 30px; }
-        .admin-panel { max-width: 1000px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d4af37; padding-bottom: 20px; margin-bottom: 30px; }
-        .card { background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-right: 5px solid #d4af37; position: relative; }
-        .card h3 { color: #d4af37; margin: 0 0 10px 0; }
-        .card p { margin: 5px 0; color: #ccc; }
-        .card .date { font-size: 0.8rem; color: #666; position: absolute; left: 20px; top: 20px; }
-        .copy-btn { background: #d4af37; color: #000; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .delete-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; float: left; }
-        .empty { text-align: center; padding: 50px; color: #666; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .admin-card { background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 100%; max-width: 400px; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; outline: none; background: #2d2d2d; color: white; }
+        button { width: 100%; padding: 12px; background: #9D4EDD; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #7b2cbf; }
+        .status { margin-top: 15px; text-align: center; font-size: 14px; color: #4CAF50; }
     </style>
 </head>
 <body>
 
-<div class="admin-panel">
-    <div class="header">
-        <h1>إدارة الطلبات الواردة 📋</h1>
-        <button onclick="clearAll()" style="background:none; color:#ff4d4d; border:1px solid #ff4d4d; padding:5px 10px; cursor:pointer; border-radius:5px;">مسح الكل</button>
+    <div class="admin-card">
+        <h2>إدارة الإعلانات ⚙️</h2>
+        <label>نوع الإعلان:</label>
+        <select id="adType">
+            <option value="image">صورة</option>
+            <option value="video">فيديو</option>
+        </select>
+
+        <label>رابط الإعلان (URL):</label>
+        <input type="text" id="adUrl" placeholder="https://example.com/ad.jpg أو .mp4">
+
+        <label>حالة الإعلان:</label>
+        <select id="adStatus">
+            <option value="active">مفعل</option>
+            <option value="inactive">معطل (حذف الإعلان)</option>
+        </select>
+
+        <button onclick="updateAd()">تحديث الإعلان</button>
+        <div class="status" id="statusMessage"></div>
     </div>
 
-    <div id="ordersContainer">
-        </div>
-</div>
+    <script>
+        // إعدادات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
+            databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mehamzaalanat",
+            storageBucket: "mehamzaalanat.firebasestorage.app",
+            appId: "1:10248497310:android:bc2b88983738827f15338f"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-<script>
-    function loadOrders() {
-        const container = document.getElementById('ordersContainer');
-        const orders = JSON.parse(localStorage.getItem('najah_orders') || '[]');
+        function updateAd() {
+            const type = document.getElementById('adType').value;
+            const url = document.getElementById('adUrl').value;
+            const status = document.getElementById('adStatus').value === 'active';
 
-        if (orders.length === 0) {
-            container.innerHTML = '<div class="empty">لا توجد طلبات جديدة حالياً.</div>';
-            return;
+            db.ref('current_ad').set({
+                type: type,
+                url: url,
+                isActive: status
+            }).then(() => {
+                document.getElementById('statusMessage').innerText = "✅ تم تحديث الإعلان بنجاح!";
+                setTimeout(() => document.getElementById('statusMessage').innerText = "", 3000);
+            }).catch((error) => {
+                document.getElementById('statusMessage').innerText = "❌ خطأ: " + error.message;
+                document.getElementById('statusMessage').style.color = "red";
+            });
         }
-
-        container.innerHTML = '';
-        orders.reverse().forEach((order, index) => {
-            container.innerHTML += `
-                <div class="card">
-                    <span class="date">${order.date}</span>
-                    <h3>${order.name} <small style="color:#0095f6; font-size:0.7rem;">(طلب جديد)</small></h3>
-                    <p><strong>نوع الإعلان:</strong> ${order.type}</p>
-                    <p><strong>التواصل:</strong> ${order.phone} | ${order.email}</p>
-                    <p><strong>التفاصيل:</strong> ${order.desc}</p>
-                    <button class="copy-btn" onclick="copyText('${order.phone}')">نسخ رقم العميل</button>
-                    <button class="delete-btn" onclick="deleteOrder(${index})">حذف الطلب</button>
-                </div>
-            `;
-        });
-    }
-
-    function copyText(text) {
-        navigator.clipboard.writeText(text);
-        alert("تم نسخ الرقم: " + text);
-    }
-
-    function deleteOrder(index) {
-        let orders = JSON.parse(localStorage.getItem('najah_orders') || '[]');
-        orders.reverse().splice(index, 1);
-        orders.reverse();
-        localStorage.setItem('najah_orders', JSON.stringify(orders));
-        loadOrders();
-    }
-
-    function clearAll() {
-        if(confirm("هل تريد مسح جميع السجلات؟")) {
-            localStorage.removeItem('najah_orders');
-            loadOrders();
-        }
-    }
-
-    // تحديث الصفحة تلقائياً كل دقيقة لرؤية الجديد
-    setInterval(loadOrders, 60000);
-    loadOrders();
-</script>
-
+    </script>
 </body>
 </html>
