@@ -12,7 +12,7 @@ const adConfig = {
     fileName: "benk.jpg",     
 
     // 4. رابط النقر: الرابط الذي يفتح عند الضغط على الإعلان (اختياري)
-    link: "https://vt.tiktok.com/ZS9HpoyWS/",
+    link: "https://wa.me/qr/LXPR5K6YKR2TB1",
 
     // 5. وقت التحديث التلقائي (اختياري للإدارة البرمجية)
     lastUpdated: "2026-05-04" 
