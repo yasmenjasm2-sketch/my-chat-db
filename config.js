@@ -9,10 +9,10 @@ const adConfig = {
     type: "image",          
 
     // 3. اسم الملف: هنا نضع اسم الصورة التي رفعتها
-    fileName: "benk.jpg",     
+    fileName: "benk.png",     
 
     // 4. رابط النقر: الرابط الذي يفتح عند الضغط على الإعلان (اختياري)
-    link: "https://wa.me/qr/LXPR5K6YKR2TB1",
+    link: "https://wsend.co/905424678123",
 
     // 5. وقت التحديث التلقائي (اختياري للإدارة البرمجية)
     lastUpdated: "2026-05-04" 
