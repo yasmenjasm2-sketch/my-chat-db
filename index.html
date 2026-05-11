@@ -61,9 +61,9 @@
                 
                 let mediaElement = '';
                 
-                // تحسينات الفيديو ليشتغل بصمت وبدون مشاكل في واجهة الجوال
+                // تم إزالة خاصية muted لتشغيل الصوت مع الفيديو
                 if (adConfig.type === 'video') {
-                    mediaElement = `<video src="${adConfig.fileName}" autoplay muted loop playsinline disablepictureinpicture controlslist="nodownload"></video>`;
+                    mediaElement = `<video src="${adConfig.fileName}" autoplay loop playsinline disablepictureinpicture controlslist="nodownload"></video>`;
                 } else {
                     mediaElement = `<img src="${adConfig.fileName}" alt="Ad">`;
                 }
