@@ -1,129 +1,122 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Premium Ad Experience</title>
+    <title>Premium Ad Viewer</title>
     <style>
-        :root {
-            --primary-color: #9D4EDD;
-            --accent-color: #5A189A;
-            --bg-overlay: rgba(10, 10, 10, 0.85);
-        }
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            margin: 0; padding: 0;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            background-color: transparent;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; overflow: hidden; user-select: none;
+            margin: 0; padding: 0; background-color: transparent; display: flex;
+            justify-content: center; align-items: center; height: 100vh; overflow: hidden;
+            user-select: none; -webkit-user-select: none;
         }
         
-        .ad-wrapper {
-            position: relative; width: 95%; height: 90%;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: var(--bg-overlay);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            opacity: 0; transform: scale(0.9);
-            animation: emerge 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        /* شاشة التحميل للإنترنت الضعيف */
+        .loader-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center; z-index: 50;
         }
-
-        @keyframes emerge {
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* شريط التقدم العلوي (25 ثانية) */
-        .progress-container {
-            position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: rgba(255, 255, 255, 0.1); border-radius: 20px 20px 0 0;
-            overflow: hidden; z-index: 30;
-        }
-        .progress-fill {
-            height: 100%; background: linear-gradient(90deg, var(--primary-color), #E0AAFF);
-            width: 0%; animation: adTimer 25s linear forwards;
-            box-shadow: 0 0 10px var(--primary-color);
-        }
-        @keyframes adTimer { to { width: 100%; } }
-
-        /* حاوية الميديا */
-        .media-container {
-            width: 100%; height: 100%; display: flex;
-            justify-content: center; align-items: center;
-            padding: 10px; position: relative;
-        }
-        img, video {
-            max-width: 100%; max-height: 100%;
-            border-radius: 12px; object-fit: contain;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-
-        /* لودر للتحميل الضعيف */
-        .loader {
-            position: absolute; width: 40px; height: 40px;
-            border: 3px solid rgba(157, 78, 221, 0.2);
-            border-top-color: var(--primary-color);
-            border-radius: 50%; animation: spin 1s linear infinite;
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(157, 78, 221, 0.3);
+            border-top-color: #9D4EDD; border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* الملصق */
-        .info-tag {
-            position: absolute; bottom: 20px; right: 20px;
-            background: rgba(0, 0, 0, 0.5); padding: 5px 15px;
-            border-radius: 50px; color: #fff; font-size: 11px;
-            border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(5px);
+        .ad-container {
+            position: relative; width: 100%; height: 100%; display: flex;
+            justify-content: center; align-items: center; background: transparent;
+            opacity: 0; transition: opacity 0.5s ease;
         }
+        
+        /* شريط تقدم احترافي */
+        .progress-bar {
+            position: absolute; top: 0; left: 0; height: 4px; background: #9D4EDD;
+            width: 0%; z-index: 20; box-shadow: 0 0 10px #9D4EDD;
+        }
+        @keyframes loadProgress { to { width: 100%; } }
+
+        img, video {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+            pointer-events: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .ad-badge {
+            position: absolute; bottom: 25px; left: 20px;
+            background: rgba(20, 20, 20, 0.75); backdrop-filter: blur(10px);
+            color: #FFF; padding: 8px 18px; border-radius: 20px;
+            font-family: sans-serif; font-size: 13px; font-weight: bold;
+            border: 1px solid rgba(157, 78, 221, 0.5);
+            pointer-events: none; z-index: 10;
+        }
+        .hidden { display: none !important; }
+        .visible { opacity: 1 !important; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div class="ad-wrapper" id="mainAd">
-        <div class="progress-container">
-            <div class="progress-fill"></div>
-        </div>
-        
-        <div class="media-container" id="mediaBox">
-            <div class="loader" id="spinner"></div>
-            <!-- المحتوى سيحقن هنا -->
-        </div>
-
-        <div class="info-tag">إعلان مميز ✨</div>
+    <div class="loader-container" id="loader">
+        <div class="spinner"></div>
     </div>
+
+    <div class="ad-container" id="adContainer"></div>
 
     <script src="config.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const mediaBox = document.getElementById('mediaBox');
-            const spinner = document.getElementById('spinner');
+            const container = document.getElementById('adContainer');
+            const loader = document.getElementById('loader');
 
             if (typeof adConfig !== 'undefined' && adConfig.isActive) {
-                let mediaHtml = '';
+                let mediaElement = '';
                 
                 if (adConfig.type === 'video') {
-                    mediaHtml = `<video id="adContent" src="${adConfig.fileName}" autoplay loop playsinline muted></video>`;
+                    mediaElement = `<video id="adMedia" src="${adConfig.fileName}" autoplay playsinline disablepictureinpicture controlslist="nodownload"></video>`;
                 } else {
-                    mediaHtml = `<img id="adContent" src="${adConfig.fileName}" alt="Ad">`;
+                    mediaElement = `<img id="adMedia" src="${adConfig.fileName}" alt="Ad">`;
                 }
 
-                // إضافة رابط إذا وجد
-                if (adConfig.link) {
-                    mediaBox.innerHTML += `<a href="${adConfig.link}" target="_blank" style="display:contents;">${mediaHtml}</a>`;
+                const innerContent = `
+                    <div class="progress-bar" id="progressBar"></div>
+                    ${mediaElement}
+                    <div class="ad-badge">إعلان ممول 📢</div>
+                `;
+
+                if (adConfig.link && adConfig.link.trim() !== "") {
+                    container.innerHTML = `<a href="${adConfig.link}" target="_blank" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; text-decoration:none;">${innerContent}</a>`;
                 } else {
-                    mediaBox.innerHTML += mediaHtml;
+                    container.innerHTML = innerContent;
                 }
 
-                const content = document.getElementById('adContent');
-                content.onload = content.onloadeddata = () => spinner.style.display = 'none';
+                const media = document.getElementById('adMedia');
+                const progressBar = document.getElementById('progressBar');
+
+                // الانتظار حتى يصبح الميديا جاهزاً للعرض (يحل مشكلة الإنترنت الضعيف)
+                const onMediaReady = () => {
+                    loader.classList.add('hidden');
+                    container.classList.add('visible');
+                    
+                    // تشغيل شريط التقدم بناءً على الوقت القادم من config
+                    progressBar.style.animation = `loadProgress ${adConfig.maxDuration}s linear forwards`;
+
+                    // إرسال الأوامر لتطبيق الأندرويد لبدء العدادات
+                    if (window.AndroidBridge) {
+                        window.AndroidBridge.startAdTimers(adConfig.maxDuration, adConfig.skipTime);
+                    }
+                };
+
+                if (adConfig.type === 'video') {
+                    media.oncanplay = onMediaReady;
+                    media.onerror = onMediaReady; // في حال فشل التحميل، نعرضه لكي يتمكن المستخدم من التخطي
+                } else {
+                    media.onload = onMediaReady;
+                    media.onerror = onMediaReady;
+                }
+
             } else {
                 document.body.style.display = 'none';
+                if (window.AndroidBridge) window.AndroidBridge.closeAd();
             }
         });
     </script>
