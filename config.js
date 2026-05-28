@@ -11,7 +11,7 @@ const adConfig = {
     type: "video",
 
     // 3. مسار ملف الميديا (الفيديو أو الصورة)
-    fileName: "mode.mp4",
+    fileName: "modeah.mp4",
 
     // 4. رابط التوجه عند النقر
     link: "https://wsend.co/905424678123",
