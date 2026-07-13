@@ -1041,7 +1041,7 @@
             history: [],
             currentRound: 0,
             lastProcessedRound: 0,
-            roundTimer: 40,
+            roundTimer: 43,
             gameState: 1,
             botActive: false,
             botRounds: 0,
@@ -1058,7 +1058,10 @@
             running: false,
             token: '',
             userId: '',
-            deviceId: ''
+            deviceId: '',
+            serverListener: null,
+            lastServerFruit: null,
+            waitingForServer: false
         };
 
         // ================================================================
@@ -1202,19 +1205,24 @@
                 setTimeout(() => cell.classList.remove('highlight-winner'), 4000);
             }
             const wasCorrect = State.codex.recordResult(winnerKey);
+
+            // تحديث عرض آخر فاكهة من السيرفر - تثبيتها حتى نهاية الجولة
+            State.lastServerFruit = winnerKey;
             document.getElementById('liveServerFruitDisplay').innerHTML =
                 `${f.emoji} ${f.name} (x${f.mult})`;
             document.getElementById('liveServerFruitDisplay').style.color = f.color;
             document.getElementById('liveServerFruitDisplay').style.textShadow = `0 0 12px ${f.color}`;
             document.getElementById('liveProgressionText').textContent =
-                `🏆 الفائز: ${f.emoji} ${f.name} | التوقع: ${wasCorrect ? '✅ صحيح' : '❌ خطأ'}`;
+                `🏆 الفائز: ${f.emoji} ${f.name} | التوقع: ${wasCorrect ? '✅ صحيح' : '❌ خطأ'} | الجولة القادمة تبدأ...`;
+
             addLog(`🏆 ${f.emoji} ${f.name} x${f.mult} ${wasCorrect ? '✅' : '❌'}`, 'winner');
             if (State.botActive) processBotResult(winnerKey, wasCorrect);
             State.currentRound++;
             document.getElementById('roundDisplay').textContent = State.currentRound;
+            State.waitingForServer = false;
         }
 
-        // دالة جديدة: استقبال الفاكهة من لوحة الإدارة عبر Firebase
+        // دالة استقبال الفاكهة من لوحة الإدارة عبر Firebase
         function handleWinnerFromServer(round, fruitKey) {
             if (!fruitKey || !FRUITS[fruitKey]) return;
             // تحديث round
@@ -1223,25 +1231,29 @@
             document.getElementById('roundDisplay').textContent = round;
             // معالجة الفائز
             handleWinner(fruitKey);
-            // بدء جولة جديدة بعد فترة قصيرة
+            // بدء جولة جديدة بعد فترة قصيرة لإظهار النتيجة
             setTimeout(() => {
                 if (State.running) {
                     startNewRound();
                 }
-            }, 3000); // إظهار النتيجة لمدة 3 ثوان ثم مسحها وبدء جولة جديدة
+            }, 2000);
         }
 
         function startNewRound() {
-            // مسح واجهة نتيجة السيرفر لاستقبال فاكهة جديدة
-            document.getElementById('liveServerFruitDisplay').innerHTML = '—';
-            document.getElementById('liveServerFruitDisplay').style.color = '#fff';
-            document.getElementById('liveServerFruitDisplay').style.textShadow = 'none';
-            document.getElementById('liveProgressionText').textContent = 'في انتظار نتيجة السيرفر...';
-            // إعادة تعيين المؤقت
-            State.roundTimer = 40 + Math.random() * 10;
+            // إعادة تعيين المؤقت إلى 43 ثانية بالضبط
+            State.roundTimer = 43;
             State.gameState = 1;
-            generateBets();
+            State.waitingForServer = false;
+
+            // لا نمسح عرض الفاكهة - تبقى مثبتة حتى وصول فاكهة جديدة من السيرفر
+            document.getElementById('liveProgressionText').textContent =
+                '🔄 جولة جديدة | في انتظار نتيجة السيرفر...';
             document.getElementById('roundTimerText').textContent = '🟢 وقت الرهان مفتوح';
+            document.getElementById('timerText').textContent = '⏱️ 43s';
+
+            // توليد رهانات جديدة للتحليل
+            generateBets();
+            addLog('🔄 بدء جولة جديدة - المؤقت 43 ثانية', 'system');
         }
 
         function processBotResult(winnerKey, wasCorrect) {
@@ -1323,6 +1335,8 @@
             State.userId = document.getElementById('inpUser').value.trim();
             State.deviceId = document.getElementById('inpDevice').value.trim();
             State.speed = parseInt(document.getElementById('selSpeed').value) || 2;
+            State.waitingForServer = false;
+            State.lastServerFruit = null;
             const btn = document.getElementById('connectBtn');
             btn.className = 'connect-btn hybrid';
             btn.textContent = '⏹ إيقاف المحرك';
@@ -1330,6 +1344,8 @@
             addLog('🚀 بدء المحرك الهجين...', 'system');
             document.getElementById('liveMonitorCard').style.display = 'block';
             document.getElementById('liveServerFruitDisplay').textContent = '—';
+            document.getElementById('liveServerFruitDisplay').style.color = '#ffd700';
+            document.getElementById('liveServerFruitDisplay').style.textShadow = '0 0 8px #ffd70044';
             tryConnectWS();
             startGameLoop();
             // بدء الاستماع لنتائج السيرفر من لوحة الإدارة
@@ -1338,6 +1354,7 @@
 
         function stopEngine() {
             State.running = false;
+            State.waitingForServer = false;
             if (State.mainInterval) { clearInterval(State.mainInterval); State.mainInterval = null; }
             if (State.connector) { try { State.connector.close(); } catch (e) {} State.connector = null; }
             // إيقاف مستمع currentRound
@@ -1485,22 +1502,32 @@
         }
 
         // ================================================================
-        //  🎮  Game Loop - توليد التوقعات فقط (النتيجة من السيرفر)
+        //  🎮  Game Loop - المؤقت 43 ثانية يعيد نفسه تلقائياً
         // ================================================================
         function startGameLoop() {
             if (State.mainInterval) clearInterval(State.mainInterval);
-            State.roundTimer = 40;
+            State.roundTimer = 43;
             State.gameState = 1;
+            State.waitingForServer = false;
             generateBets();
+            document.getElementById('timerText').textContent = '⏱️ 43s';
+            document.getElementById('roundTimerText').textContent = '🟢 وقت الرهان مفتوح';
             const intervalMs = Math.max(300, Math.floor(1000 / State.speed));
             State.mainInterval = setInterval(() => {
                 if (!State.running) return;
-                // المرحلة الأولى فقط: الرهان والتحليل
+
+                // المرحلة الأولى: الرهان والتحليل - العد التنازلي من 43
                 if (State.gameState === 1) {
                     State.roundTimer -= 0.5;
                     if (State.roundTimer <= 0) {
                         State.roundTimer = 0;
+                        State.gameState = 0;
+                        State.waitingForServer = true;
                         document.getElementById('roundTimerText').textContent = '🔴 في انتظار النتيجة من السيرفر...';
+                        document.getElementById('timerText').textContent = '⏱️ 0s';
+                        document.getElementById('timerFill').style.width = '100%';
+                        document.getElementById('liveProgressionText').textContent =
+                            '⏳ انتهى وقت الرهان - في انتظار نتيجة السيرفر من لوحة الإدارة...';
                         // لا نولد فائزاً، النتيجة تأتي من Firebase
                         return;
                     }
@@ -1511,7 +1538,7 @@
                         updatePredictions(analysis);
                         updateWarningPanel(analysis);
                     }
-                    const pct = (State.roundTimer / 40) * 100;
+                    const pct = (State.roundTimer / 43) * 100;
                     document.getElementById('timerFill').style.width = `${Math.max(0, pct)}%`;
                     document.getElementById('timerText').textContent = `⏱️ ${Math.ceil(State.roundTimer)}s`;
                     document.getElementById('roundTimerText').textContent =
@@ -1522,6 +1549,14 @@
                     document.getElementById('liveProgressionText').textContent =
                         phrases[Math.floor(Math.random() * phrases.length)];
                 }
+
+                // المرحلة الثانية: في انتظار نتيجة السيرفر
+                if (State.gameState === 0 && State.waitingForServer) {
+                    document.getElementById('roundTimerText').textContent = '🔴 في انتظار النتيجة من السيرفر...';
+                    document.getElementById('liveProgressionText').textContent =
+                        '⏳ في انتظار نتيجة السيرفر من لوحة الإدارة...';
+                }
+
                 document.getElementById('channelCountLabel').textContent = State.codexAnalysis?.all?.length || 0;
             }, intervalMs);
         }
