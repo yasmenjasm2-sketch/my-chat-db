@@ -484,7 +484,7 @@
             text-shadow: 0 0 8px #ffd70044;
         }
 
-        /* ========== Overlays ========== */
+        /* ========== PIN OVERLAY ========== */
         .overlay {
             position: fixed;
             top: 0;
@@ -593,15 +593,6 @@
         <div style="font-size: 12px; color: #666; margin-bottom: 10px; font-weight: bold;">المعرف الأمني لجهازك:</div>
         <div class="overlay-id" id="displayDeviceId">...</div>
         <div class="overlay-footer">يرجى تزويد المشرف بهذا المعرف لفك التشفير وتخطي الحرس الأمني</div>
-    </div>
-
-    <!-- ========== SUBSCRIPTION EXPIRED OVERLAY ========== -->
-    <div id="subExpiredOverlay" class="overlay" style="display:none;">
-        <div class="scan-line"></div>
-        <div class="overlay-icon">⏳</div>
-        <div class="overlay-title">انتهت صلاحية الاشتراك</div>
-        <div class="overlay-sub">مدة الاشتراك الشهرية انتهت. يرجى التواصل مع المشرف لتجديد الاشتراك.</div>
-        <div class="overlay-footer">المعرف: <span id="expiredDeviceId"></span></div>
     </div>
 
     <!-- ========== MAIN CONTAINER ========== -->
@@ -842,7 +833,6 @@
 
         document.getElementById('displayDeviceId').textContent = FIXED_DEVICE_ID;
         document.getElementById('headerDeviceId').textContent = FIXED_DEVICE_ID.substring(0, 9);
-        document.getElementById('expiredDeviceId').textContent = FIXED_DEVICE_ID;
 
         // ================================================================
         //  📡 FIREBASE PRESENCE
@@ -875,61 +865,19 @@
         }
 
         // ================================================================
-        //  📅 SUBSCRIPTION SYSTEM - اشتراك شهري
-        // ================================================================
-        function checkSubscription() {
-            const subRef = db.ref('subscriptions/' + FIXED_DEVICE_ID);
-            subRef.once('value').then(snap => {
-                const data = snap.val();
-                const now = Date.now();
-                if (data && data.expiry) {
-                    if (now > data.expiry) {
-                        // اشتراك منتهي
-                        document.getElementById('subExpiredOverlay').style.display = 'flex';
-                        document.getElementById('mainContainer').style.display = 'none';
-                        document.getElementById('pinOverlay').style.display = 'none';
-                        addLog('❌ الاشتراك منتهي الصلاحية. يرجى التجديد.', 'error');
-                    } else {
-                        // اشتراك ساري
-                        showMainApp();
-                    }
-                } else {
-                    // لا يوجد اشتراك – إنشاء اشتراك جديد لمدة 30 يوم
-                    const expiry = now + (30 * 24 * 60 * 60 * 1000); // 30 يوم
-                    subRef.set({ expiry: expiry, startedAt: now, deviceId: FIXED_DEVICE_ID }).then(() => {
-                        addLog('✅ تم فتح اشتراك شهري جديد. صالح حتى: ' + new Date(expiry).toLocaleDateString('ar-SA'),
-                            'info');
-                        showMainApp();
-                    });
-                }
-            }).catch(err => {
-                addLog('⚠️ فشل التحقق من الاشتراك: ' + err.message, 'error');
-                // في حالة الخطأ نعرض التطبيق احتياطياً
-                showMainApp();
-            });
-        }
-
-        function showMainApp() {
-            document.getElementById('pinOverlay').style.display = 'none';
-            document.getElementById('subExpiredOverlay').style.display = 'none';
-            document.getElementById('mainContainer').style.display = 'block';
-            setupPresence();
-            addLog('تم تخطي الحرس الأمني بنجاح. بانتظار بدء الاتصال.', 'info');
-        }
-
-        // ================================================================
         //  🛡️ SECURITY CHECK - Firebase approvedUsers
         // ================================================================
         db.ref('approvedUsers/' + FIXED_DEVICE_ID).on('value', snap => {
             const isApproved = snap.val();
             if (isApproved) {
-                // تمت الموافقة - التحقق من الاشتراك
-                checkSubscription();
+                document.getElementById('pinOverlay').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                addLog('تم تخطي الحرس الأمني بنجاح. بانتظار بدء الاتصال.', 'info');
                 db.ref('pendingUsers/' + FIXED_DEVICE_ID).remove();
+                setupPresence();
             } else {
                 document.getElementById('pinOverlay').style.display = 'flex';
                 document.getElementById('mainContainer').style.display = 'none';
-                document.getElementById('subExpiredOverlay').style.display = 'none';
                 if (State.running) { toggleConnection(); }
                 db.ref('pendingUsers/' + FIXED_DEVICE_ID).set({
                     id: FIXED_DEVICE_ID,
@@ -1105,7 +1053,6 @@
             recommended: [],
             codexAnalysis: null,
             mainInterval: null,
-            timerSyncInterval: null,
             mode: 'hybrid',
             speed: 2,
             running: false,
@@ -1114,8 +1061,7 @@
             deviceId: '',
             serverListener: null,
             lastServerFruit: null,
-            waitingForServer: false,
-            roundStartTime: null
+            waitingForServer: false
         };
 
         // ================================================================
@@ -1274,23 +1220,18 @@
             State.currentRound++;
             document.getElementById('roundDisplay').textContent = State.currentRound;
             State.waitingForServer = false;
-
-            // إرسال النتيجة إلى لوحة الإدارة
-            db.ref('gameState/lastResult').set({
-                round: State.currentRound,
-                fruit: winnerKey,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                device: FIXED_DEVICE_ID
-            });
         }
 
         // دالة استقبال الفاكهة من لوحة الإدارة عبر Firebase
         function handleWinnerFromServer(round, fruitKey) {
             if (!fruitKey || !FRUITS[fruitKey]) return;
+            // تحديث round
             State.currentRound = round;
             State.lastProcessedRound = round;
             document.getElementById('roundDisplay').textContent = round;
+            // معالجة الفائز
             handleWinner(fruitKey);
+            // بدء جولة جديدة بعد فترة قصيرة لإظهار النتيجة
             setTimeout(() => {
                 if (State.running) {
                     startNewRound();
@@ -1299,26 +1240,18 @@
         }
 
         function startNewRound() {
-            // إعادة تعيين المؤقت إلى 43 ثانية
+            // إعادة تعيين المؤقت إلى 43 ثانية بالضبط
             State.roundTimer = 43;
             State.gameState = 1;
             State.waitingForServer = false;
-            State.roundStartTime = Date.now();
 
-            // تخزين بداية الجولة في Firebase للاستمرارية حتى بعد إغلاق الشاشة
-            db.ref('gameState/currentTimer').set({
-                startedAt: firebase.database.ServerValue.TIMESTAMP,
-                duration: 43,
-                device: FIXED_DEVICE_ID,
-                round: State.currentRound
-            });
-
+            // لا نمسح عرض الفاكهة - تبقى مثبتة حتى وصول فاكهة جديدة من السيرفر
             document.getElementById('liveProgressionText').textContent =
                 '🔄 جولة جديدة | في انتظار نتيجة السيرفر...';
             document.getElementById('roundTimerText').textContent = '🟢 وقت الرهان مفتوح';
             document.getElementById('timerText').textContent = '⏱️ 43s';
-            document.getElementById('timerFill').style.width = '0%';
 
+            // توليد رهانات جديدة للتحليل
             generateBets();
             addLog('🔄 بدء جولة جديدة - المؤقت 43 ثانية', 'system');
         }
@@ -1386,61 +1319,6 @@
         }
 
         // ================================================================
-        //  🔄 مزامنة المؤقت مع Firebase (للاستمرارية بعد إغلاق الشاشة)
-        // ================================================================
-        function syncTimerWithFirebase() {
-            const timerRef = db.ref('gameState/currentTimer');
-            timerRef.once('value').then(snap => {
-                const data = snap.val();
-                if (data && data.startedAt && data.duration) {
-                    const serverStartTime = data.startedAt; // وقت الخادم بالميلي ثانية
-                    const now = Date.now();
-                    const elapsed = (now - serverStartTime) / 1000;
-                    const remaining = data.duration - elapsed;
-                    if (remaining > 0 && data.device === FIXED_DEVICE_ID) {
-                        // استئناف المؤقت
-                        State.roundTimer = Math.max(0, remaining);
-                        State.gameState = 1;
-                        State.waitingForServer = false;
-                        State.roundStartTime = serverStartTime;
-                        addLog(`⏱️ استئناف المؤقت: ${Math.ceil(remaining)} ثانية متبقية`, 'info');
-                    } else if (remaining <= 0 && data.device === FIXED_DEVICE_ID) {
-                        // انتهى الوقت – انتظار نتيجة
-                        State.roundTimer = 0;
-                        State.gameState = 0;
-                        State.waitingForServer = true;
-                        addLog('⏳ المؤقت منتهي. في انتظار نتيجة السيرفر...', 'info');
-                    }
-                }
-            });
-        }
-
-        // إرسال حالة المؤقت إلى لوحة الإدارة بشكل دوري
-        function startTimerSync() {
-            if (State.timerSyncInterval) clearInterval(State.timerSyncInterval);
-            State.timerSyncInterval = setInterval(() => {
-                if (!State.running) return;
-                db.ref('adminPanel/timers/' + FIXED_DEVICE_ID).set({
-                    roundTimer: State.roundTimer,
-                    gameState: State.gameState,
-                    currentRound: State.currentRound,
-                    waitingForServer: State.waitingForServer,
-                    lastServerFruit: State.lastServerFruit,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-            }, 2000);
-        }
-
-        function stopTimerSync() {
-            if (State.timerSyncInterval) {
-                clearInterval(State.timerSyncInterval);
-                State.timerSyncInterval = null;
-            }
-            // إزالة بيانات المؤقت من لوحة الإدارة
-            db.ref('adminPanel/timers/' + FIXED_DEVICE_ID).remove();
-        }
-
-        // ================================================================
         //  🔗  HYBRID ENGINE
         // ================================================================
         function toggleConnection() {
@@ -1469,11 +1347,8 @@
             document.getElementById('liveServerFruitDisplay').style.color = '#ffd700';
             document.getElementById('liveServerFruitDisplay').style.textShadow = '0 0 8px #ffd70044';
             tryConnectWS();
-            // مزامنة المؤقت من Firebase قبل بدء الحلقة
-            syncTimerWithFirebase().then(() => {
-                startGameLoop();
-            });
-            startTimerSync();
+            startGameLoop();
+            // بدء الاستماع لنتائج السيرفر من لوحة الإدارة
             listenToServerResults();
         }
 
@@ -1482,8 +1357,8 @@
             State.waitingForServer = false;
             if (State.mainInterval) { clearInterval(State.mainInterval); State.mainInterval = null; }
             if (State.connector) { try { State.connector.close(); } catch (e) {} State.connector = null; }
+            // إيقاف مستمع currentRound
             if (State.serverListener) { db.ref('currentRound').off('value', State.serverListener); State.serverListener = null; }
-            stopTimerSync();
             const btn = document.getElementById('connectBtn');
             btn.className = 'connect-btn disconnected';
             btn.textContent = '🔗 تشغيل المحرك الهجين';
@@ -1492,6 +1367,7 @@
             document.getElementById('liveMonitorCard').style.display = 'none';
         }
 
+        // مستمع نتائج السيرفر من Firebase
         function listenToServerResults() {
             if (State.serverListener) db.ref('currentRound').off('value', State.serverListener);
             State.serverListener = db.ref('currentRound').on('value', snap => {
@@ -1630,11 +1506,11 @@
         // ================================================================
         function startGameLoop() {
             if (State.mainInterval) clearInterval(State.mainInterval);
-            // إذا لم يتم ضبط roundStartTime من sync، نبدأ جولة جديدة
-            if (!State.roundStartTime) {
-                startNewRound();
-            }
-            document.getElementById('timerText').textContent = `⏱️ ${Math.ceil(State.roundTimer)}s`;
+            State.roundTimer = 43;
+            State.gameState = 1;
+            State.waitingForServer = false;
+            generateBets();
+            document.getElementById('timerText').textContent = '⏱️ 43s';
             document.getElementById('roundTimerText').textContent = '🟢 وقت الرهان مفتوح';
             const intervalMs = Math.max(300, Math.floor(1000 / State.speed));
             State.mainInterval = setInterval(() => {
@@ -1652,8 +1528,7 @@
                         document.getElementById('timerFill').style.width = '100%';
                         document.getElementById('liveProgressionText').textContent =
                             '⏳ انتهى وقت الرهان - في انتظار نتيجة السيرفر من لوحة الإدارة...';
-                        // تحديث Firebase أن الجولة انتهت
-                        db.ref('gameState/currentTimer').update({ ended: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                        // لا نولد فائزاً، النتيجة تأتي من Firebase
                         return;
                     }
                     if (Math.random() < 0.3) { generateBets(); }
