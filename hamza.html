@@ -110,6 +110,11 @@
             background: #2a1a00 !important;
             color: #ffd700 !important;
         }
+        .badge-subscribed {
+            background: #002a10 !important;
+            color: #4caf50 !important;
+            animation: pulse-sub 2s infinite;
+        }
 
         .fruit-grid {
             display: grid;
@@ -382,6 +387,10 @@
             color: #ff5252;
             font-weight: bold;
         }
+        .log-entry.sub {
+            color: #00e676;
+            font-weight: bold;
+        }
 
         .history-strip {
             display: flex;
@@ -553,6 +562,33 @@
             border: 1px solid rgba(255, 82, 82, 0.3);
         }
 
+        /* ========== SUBSCRIPTION INFO BAR ========== */
+        .sub-bar {
+            background: linear-gradient(135deg, #001a05, #0d0d1a);
+            border: 1px solid #4caf5066;
+            border-radius: 8px;
+            padding: 6px 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+        }
+        .sub-bar.permanent {
+            background: linear-gradient(135deg, #001a05, #002010);
+            border-color: #00e676;
+            box-shadow: 0 0 12px #00e67622;
+        }
+        .sub-bar .sub-status {
+            color: #00e676;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        .sub-bar .sub-info {
+            color: #a5d6a7;
+            font-size: 9px;
+        }
+
         @keyframes float {
             0% {
                 transform: translateY(0px);
@@ -578,6 +614,15 @@
             100% {
                 top: 110%;
                 opacity: 0;
+            }
+        }
+        @keyframes pulse-sub {
+            0%,
+            100% {
+                box-shadow: 0 0 4px #00e67644;
+            }
+            50% {
+                box-shadow: 0 0 14px #00e67688;
             }
         }
     </style>
@@ -608,6 +653,12 @@
                 <span>🎯 جولة: <span id="roundDisplay">0</span></span>
                 <span>📊: <span id="historyCount">0</span></span>
             </div>
+        </div>
+
+        <!-- ========== SUBSCRIPTION STATUS BAR ========== -->
+        <div class="sub-bar permanent" id="subBar" style="display:none;">
+            <span>🔐 <span class="sub-status">✅ اشتراك مثبت</span></span>
+            <span class="sub-info" id="subInfo">دائم - لا ينقطع</span>
         </div>
 
         <!-- Connect Button -->
@@ -865,27 +916,159 @@
         }
 
         // ================================================================
-        //  🛡️ SECURITY CHECK - Firebase approvedUsers
+        //  📋 SUBSCRIPTION SYSTEM - اشتراك دائم لا ينقطع
         // ================================================================
-        db.ref('approvedUsers/' + FIXED_DEVICE_ID).on('value', snap => {
-            const isApproved = snap.val();
-            if (isApproved) {
-                document.getElementById('pinOverlay').style.display = 'none';
-                document.getElementById('mainContainer').style.display = 'block';
-                addLog('تم تخطي الحرس الأمني بنجاح. بانتظار بدء الاتصال.', 'info');
-                db.ref('pendingUsers/' + FIXED_DEVICE_ID).remove();
-                setupPresence();
-            } else {
-                document.getElementById('pinOverlay').style.display = 'flex';
-                document.getElementById('mainContainer').style.display = 'none';
-                if (State.running) { toggleConnection(); }
-                db.ref('pendingUsers/' + FIXED_DEVICE_ID).set({
-                    id: FIXED_DEVICE_ID,
-                    lastSeen: firebase.database.ServerValue.TIMESTAMP
-                });
-                db.ref('pendingUsers/' + FIXED_DEVICE_ID).onDisconnect().remove();
+        const SUBSCRIPTION_STORAGE_KEY = 'yalla_subscription_v7';
+
+        // حفظ الاشتراك محلياً بشكل دائم
+        function saveSubscriptionLocally(subData) {
+            const data = {
+                ...subData,
+                savedAt: Date.now(),
+                deviceId: FIXED_DEVICE_ID
+            };
+            localStorage.setItem(SUBSCRIPTION_STORAGE_KEY, JSON.stringify(data));
+            addLog('🔐 تم تثبيت الاشتراك محلياً على الجهاز', 'sub');
+        }
+
+        // استرجاع الاشتراك المحلي
+        function getLocalSubscription() {
+            try {
+                const raw = localStorage.getItem(SUBSCRIPTION_STORAGE_KEY);
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                // التحقق من أن الاشتراك لهذا الجهاز
+                if (data.deviceId === FIXED_DEVICE_ID) {
+                    return data;
+                }
+                return null;
+            } catch (e) {
+                return null;
             }
-        });
+        }
+
+        // عرض شريط الاشتراك
+        function showSubscriptionBar(subData) {
+            const bar = document.getElementById('subBar');
+            bar.style.display = 'flex';
+            const info = document.getElementById('subInfo');
+            if (subData.permanent || subData.type === 'permanent') {
+                info.textContent = '🔒 دائم - لا ينقطع أبداً';
+                bar.className = 'sub-bar permanent';
+            } else if (subData.expiresAt) {
+                const expDate = new Date(subData.expiresAt);
+                info.textContent = '📅 صالح حتى: ' + expDate.toLocaleDateString('ar-SA');
+                bar.className = 'sub-bar permanent';
+            } else {
+                info.textContent = '✅ نشط - مثبت على الجهاز';
+                bar.className = 'sub-bar permanent';
+            }
+            addLog('🔐 اشتراك مثبت ونشط - لن ينقطع', 'sub');
+        }
+
+        // التحقق من الاشتراك في Firebase وتثبيته
+        function checkAndInstallSubscription() {
+            const localSub = getLocalSubscription();
+
+            db.ref('subscriptions/' + FIXED_DEVICE_ID).on('value', snap => {
+                const remoteSub = snap.val();
+
+                if (remoteSub && remoteSub.active === true) {
+                    // يوجد اشتراك نشط في Firebase - تثبيته محلياً
+                    saveSubscriptionLocally(remoteSub);
+                    showSubscriptionBar(remoteSub);
+                    // تأكيد التثبيت في Firebase
+                    db.ref('subscriptions/' + FIXED_DEVICE_ID).update({
+                        installedAt: firebase.database.ServerValue.TIMESTAMP,
+                        deviceId: FIXED_DEVICE_ID,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP,
+                        status: 'installed'
+                    });
+                    // فتح التطبيق تلقائياً
+                    document.getElementById('pinOverlay').style.display = 'none';
+                    document.getElementById('mainContainer').style.display = 'block';
+                    setupPresence();
+                    addLog('🔐 تم تثبيت الاشتراك من السحابة - اشتراك دائم', 'sub');
+
+                    // أيضاً إضافة للموافقة
+                    db.ref('approvedUsers/' + FIXED_DEVICE_ID).set(true);
+                    db.ref('pendingUsers/' + FIXED_DEVICE_ID).remove();
+                } else if (localSub && localSub.active === true) {
+                    // الاشتراك موجود محلياً - إعادة تثبيته في Firebase إذا فُقد
+                    db.ref('subscriptions/' + FIXED_DEVICE_ID).set({
+                        ...localSub,
+                        reInstalledAt: firebase.database.ServerValue.TIMESTAMP,
+                        deviceId: FIXED_DEVICE_ID,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP,
+                        status: 'reinstalled_from_local'
+                    });
+                    showSubscriptionBar(localSub);
+                    document.getElementById('pinOverlay').style.display = 'none';
+                    document.getElementById('mainContainer').style.display = 'block';
+                    setupPresence();
+                    db.ref('approvedUsers/' + FIXED_DEVICE_ID).set(true);
+                    addLog('🔐 تم استعادة الاشتراك من الذاكرة المحلية وإعادة تثبيته', 'sub');
+                } else {
+                    // لا يوجد اشتراك - التحقق من approvedUsers القديم
+                    checkLegacyApproval();
+                }
+            });
+        }
+
+        // ================================================================
+        //  🛡️ SECURITY CHECK - Firebase approvedUsers (للتوافق مع القديم)
+        // ================================================================
+        function checkLegacyApproval() {
+            db.ref('approvedUsers/' + FIXED_DEVICE_ID).on('value', snap => {
+                const isApproved = snap.val();
+                if (isApproved) {
+                    // تحويل الموافقة القديمة إلى اشتراك دائم
+                    const permanentSub = {
+                        active: true,
+                        type: 'permanent',
+                        permanent: true,
+                        createdAt: Date.now(),
+                        deviceId: FIXED_DEVICE_ID,
+                        note: 'تم الترقية من موافقة قديمة إلى اشتراك دائم'
+                    };
+                    db.ref('subscriptions/' + FIXED_DEVICE_ID).set(permanentSub);
+                    saveSubscriptionLocally(permanentSub);
+                    document.getElementById('pinOverlay').style.display = 'none';
+                    document.getElementById('mainContainer').style.display = 'block';
+                    showSubscriptionBar(permanentSub);
+                    addLog('✅ تمت ترقية الموافقة إلى اشتراك دائم مثبت', 'sub');
+                    db.ref('pendingUsers/' + FIXED_DEVICE_ID).remove();
+                    setupPresence();
+                } else {
+                    // التحقق من الاشتراك المحلي مرة أخيرة
+                    const localSub = getLocalSubscription();
+                    if (localSub && localSub.active === true) {
+                        // الاشتراك المحلي موجود - إعادة تثبيته
+                        db.ref('subscriptions/' + FIXED_DEVICE_ID).set({
+                            ...localSub,
+                            reInstalledAt: firebase.database.ServerValue.TIMESTAMP,
+                            deviceId: FIXED_DEVICE_ID,
+                            status: 'reinstalled_from_local_only'
+                        });
+                        db.ref('approvedUsers/' + FIXED_DEVICE_ID).set(true);
+                        document.getElementById('pinOverlay').style.display = 'none';
+                        document.getElementById('mainContainer').style.display = 'block';
+                        showSubscriptionBar(localSub);
+                        setupPresence();
+                        addLog('🔐 تم استعادة الاشتراك من الذاكرة المحلية (وضع الطوارئ)', 'sub');
+                    } else {
+                        document.getElementById('pinOverlay').style.display = 'flex';
+                        document.getElementById('mainContainer').style.display = 'none';
+                        if (State.running) { toggleConnection(); }
+                        db.ref('pendingUsers/' + FIXED_DEVICE_ID).set({
+                            id: FIXED_DEVICE_ID,
+                            lastSeen: firebase.database.ServerValue.TIMESTAMP
+                        });
+                        db.ref('pendingUsers/' + FIXED_DEVICE_ID).onDisconnect().remove();
+                    }
+                }
+            });
+        }
 
         // ================================================================
         //  🍎🍋🍇🍊🍓🥭🍉🍒  بيانات الفواكه
@@ -1358,7 +1541,8 @@
             if (State.mainInterval) { clearInterval(State.mainInterval); State.mainInterval = null; }
             if (State.connector) { try { State.connector.close(); } catch (e) {} State.connector = null; }
             // إيقاف مستمع currentRound
-            if (State.serverListener) { db.ref('currentRound').off('value', State.serverListener); State.serverListener = null; }
+            if (State.serverListener) { db.ref('currentRound').off('value', State.serverListener); State.serverListener =
+                    null; }
             const btn = document.getElementById('connectBtn');
             btn.className = 'connect-btn disconnected';
             btn.textContent = '🔗 تشغيل المحرك الهجين';
@@ -1375,7 +1559,8 @@
                 const data = snap.val();
                 if (data && data.round && data.fruit && FRUITS[data.fruit]) {
                     if (data.round > State.lastProcessedRound) {
-                        addLog(`📡 استقبال نتيجة من السيرفر: ${FRUITS[data.fruit].emoji} ${FRUITS[data.fruit].name}`, 'data');
+                        addLog(`📡 استقبال نتيجة من السيرفر: ${FRUITS[data.fruit].emoji} ${FRUITS[data.fruit].name}`,
+                            'data');
                         handleWinnerFromServer(data.round, data.fruit);
                     }
                 }
@@ -1429,10 +1614,12 @@
                                 const list = Array.isArray(msgs) ? msgs : [msgs];
                                 list.forEach(msg => {
                                     if (msg.channel === '/meta/handshake' && msg.successful) {
-                                        addLog(`🔑 Handshake ناجح! ClientID: ${msg.clientId}`, 'info');
+                                        addLog(`🔑 Handshake ناجح! ClientID: ${msg.clientId}`,
+                                            'info');
                                         sendSubscription(ws, msg.clientId);
                                     }
-                                    if (msg.channel?.includes('fruit') || msg.channel?.includes('game')) {
+                                    if (msg.channel?.includes('fruit') || msg.channel?.includes(
+                                            'game')) {
                                         processLiveData(msg);
                                     }
                                 });
@@ -1443,8 +1630,11 @@
                             State.connector = null;
                         };
                     };
-                    ws.onerror = () => { tried++; addLog(`❌ فشل ${url}`, 'data'); setTimeout(tryNext, 500); };
-                } catch (e) { tried++; setTimeout(tryNext, 500); }
+                    ws.onerror = () => { tried++;
+                        addLog(`❌ فشل ${url}`, 'data');
+                        setTimeout(tryNext, 500); };
+                } catch (e) { tried++;
+                    setTimeout(tryNext, 500); }
             }
             tryNext();
         }
@@ -1485,7 +1675,8 @@
                     });
                 });
                 if (Object.keys(bets).length >= 4) {
-                    FRUIT_KEYS.forEach(k => { if (bets[k]) State.bets[k] = Math.round((State.bets[k] + bets[k]) / 2); });
+                    FRUIT_KEYS.forEach(k => { if (bets[k]) State.bets[k] = Math.round((State.bets[k] + bets[k]) /
+                            2); });
                 }
             }
             if (channel.includes('result')) {
@@ -1523,7 +1714,8 @@
                         State.roundTimer = 0;
                         State.gameState = 0;
                         State.waitingForServer = true;
-                        document.getElementById('roundTimerText').textContent = '🔴 في انتظار النتيجة من السيرفر...';
+                        document.getElementById('roundTimerText').textContent =
+                            '🔴 في انتظار النتيجة من السيرفر...';
                         document.getElementById('timerText').textContent = '⏱️ 0s';
                         document.getElementById('timerFill').style.width = '100%';
                         document.getElementById('liveProgressionText').textContent =
@@ -1552,7 +1744,8 @@
 
                 // المرحلة الثانية: في انتظار نتيجة السيرفر
                 if (State.gameState === 0 && State.waitingForServer) {
-                    document.getElementById('roundTimerText').textContent = '🔴 في انتظار النتيجة من السيرفر...';
+                    document.getElementById('roundTimerText').textContent =
+                        '🔴 في انتظار النتيجة من السيرفر...';
                     document.getElementById('liveProgressionText').textContent =
                         '⏳ في انتظار نتيجة السيرفر من لوحة الإدارة...';
                 }
@@ -1598,7 +1791,10 @@
         // ================================================================
         initUI();
         addLog('[أمان] 🍒 YALLA FRUIT v7.0 SECURE جاهز', 'sec');
-        addLog('[أمان] بانتظار موافقة المشرف على معرف الجهاز...', 'sec');
+        addLog('[أمان] جاري التحقق من الاشتراك...', 'sec');
+
+        // بدء نظام الاشتراكات - هذا يحل محل النظام القديم
+        checkAndInstallSubscription();
     </script>
 </body>
 </html>
