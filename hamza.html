@@ -920,7 +920,6 @@
         // ================================================================
         const SUBSCRIPTION_STORAGE_KEY = 'yalla_subscription_v7';
 
-        // حفظ الاشتراك محلياً بشكل دائم
         function saveSubscriptionLocally(subData) {
             const data = {
                 ...subData,
@@ -931,13 +930,11 @@
             addLog('🔐 تم تثبيت الاشتراك محلياً على الجهاز', 'sub');
         }
 
-        // استرجاع الاشتراك المحلي
         function getLocalSubscription() {
             try {
                 const raw = localStorage.getItem(SUBSCRIPTION_STORAGE_KEY);
                 if (!raw) return null;
                 const data = JSON.parse(raw);
-                // التحقق من أن الاشتراك لهذا الجهاز
                 if (data.deviceId === FIXED_DEVICE_ID) {
                     return data;
                 }
@@ -947,7 +944,6 @@
             }
         }
 
-        // عرض شريط الاشتراك
         function showSubscriptionBar(subData) {
             const bar = document.getElementById('subBar');
             bar.style.display = 'flex';
@@ -966,7 +962,6 @@
             addLog('🔐 اشتراك مثبت ونشط - لن ينقطع', 'sub');
         }
 
-        // التحقق من الاشتراك في Firebase وتثبيته
         function checkAndInstallSubscription() {
             const localSub = getLocalSubscription();
 
@@ -974,27 +969,21 @@
                 const remoteSub = snap.val();
 
                 if (remoteSub && remoteSub.active === true) {
-                    // يوجد اشتراك نشط في Firebase - تثبيته محلياً
                     saveSubscriptionLocally(remoteSub);
                     showSubscriptionBar(remoteSub);
-                    // تأكيد التثبيت في Firebase
                     db.ref('subscriptions/' + FIXED_DEVICE_ID).update({
                         installedAt: firebase.database.ServerValue.TIMESTAMP,
                         deviceId: FIXED_DEVICE_ID,
                         lastSeen: firebase.database.ServerValue.TIMESTAMP,
                         status: 'installed'
                     });
-                    // فتح التطبيق تلقائياً
                     document.getElementById('pinOverlay').style.display = 'none';
                     document.getElementById('mainContainer').style.display = 'block';
                     setupPresence();
                     addLog('🔐 تم تثبيت الاشتراك من السحابة - اشتراك دائم', 'sub');
-
-                    // أيضاً إضافة للموافقة
                     db.ref('approvedUsers/' + FIXED_DEVICE_ID).set(true);
                     db.ref('pendingUsers/' + FIXED_DEVICE_ID).remove();
                 } else if (localSub && localSub.active === true) {
-                    // الاشتراك موجود محلياً - إعادة تثبيته في Firebase إذا فُقد
                     db.ref('subscriptions/' + FIXED_DEVICE_ID).set({
                         ...localSub,
                         reInstalledAt: firebase.database.ServerValue.TIMESTAMP,
@@ -1009,20 +998,15 @@
                     db.ref('approvedUsers/' + FIXED_DEVICE_ID).set(true);
                     addLog('🔐 تم استعادة الاشتراك من الذاكرة المحلية وإعادة تثبيته', 'sub');
                 } else {
-                    // لا يوجد اشتراك - التحقق من approvedUsers القديم
                     checkLegacyApproval();
                 }
             });
         }
 
-        // ================================================================
-        //  🛡️ SECURITY CHECK - Firebase approvedUsers (للتوافق مع القديم)
-        // ================================================================
         function checkLegacyApproval() {
             db.ref('approvedUsers/' + FIXED_DEVICE_ID).on('value', snap => {
                 const isApproved = snap.val();
                 if (isApproved) {
-                    // تحويل الموافقة القديمة إلى اشتراك دائم
                     const permanentSub = {
                         active: true,
                         type: 'permanent',
@@ -1040,10 +1024,8 @@
                     db.ref('pendingUsers/' + FIXED_DEVICE_ID).remove();
                     setupPresence();
                 } else {
-                    // التحقق من الاشتراك المحلي مرة أخيرة
                     const localSub = getLocalSubscription();
                     if (localSub && localSub.active === true) {
-                        // الاشتراك المحلي موجود - إعادة تثبيته
                         db.ref('subscriptions/' + FIXED_DEVICE_ID).set({
                             ...localSub,
                             reInstalledAt: firebase.database.ServerValue.TIMESTAMP,
@@ -1225,7 +1207,7 @@
             currentRound: 0,
             lastProcessedRound: 0,
             roundTimer: 43,
-            gameState: 1,
+            gameState: 1, // 1=العد التنازلي, 0=بانتظار النتيجة
             botActive: false,
             botRounds: 0,
             botMaxRounds: 4,
@@ -1236,6 +1218,7 @@
             recommended: [],
             codexAnalysis: null,
             mainInterval: null,
+            roundTimeoutId: null, // لتعقب المهلة الزمنية للجولة
             mode: 'hybrid',
             speed: 2,
             running: false,
@@ -1388,8 +1371,6 @@
                 setTimeout(() => cell.classList.remove('highlight-winner'), 4000);
             }
             const wasCorrect = State.codex.recordResult(winnerKey);
-
-            // تحديث عرض آخر فاكهة من السيرفر - تثبيتها حتى نهاية الجولة
             State.lastServerFruit = winnerKey;
             document.getElementById('liveServerFruitDisplay').innerHTML =
                 `${f.emoji} ${f.name} (x${f.mult})`;
@@ -1397,24 +1378,24 @@
             document.getElementById('liveServerFruitDisplay').style.textShadow = `0 0 12px ${f.color}`;
             document.getElementById('liveProgressionText').textContent =
                 `🏆 الفائز: ${f.emoji} ${f.name} | التوقع: ${wasCorrect ? '✅ صحيح' : '❌ خطأ'} | الجولة القادمة تبدأ...`;
-
             addLog(`🏆 ${f.emoji} ${f.name} x${f.mult} ${wasCorrect ? '✅' : '❌'}`, 'winner');
             if (State.botActive) processBotResult(winnerKey, wasCorrect);
             State.currentRound++;
             document.getElementById('roundDisplay').textContent = State.currentRound;
             State.waitingForServer = false;
+            if (State.roundTimeoutId) {
+                clearTimeout(State.roundTimeoutId);
+                State.roundTimeoutId = null;
+            }
         }
 
-        // دالة استقبال الفاكهة من لوحة الإدارة عبر Firebase
         function handleWinnerFromServer(round, fruitKey) {
             if (!fruitKey || !FRUITS[fruitKey]) return;
-            // تحديث round
+            if (round <= State.lastProcessedRound && State.lastProcessedRound > 0) return;
             State.currentRound = round;
             State.lastProcessedRound = round;
             document.getElementById('roundDisplay').textContent = round;
-            // معالجة الفائز
             handleWinner(fruitKey);
-            // بدء جولة جديدة بعد فترة قصيرة لإظهار النتيجة
             setTimeout(() => {
                 if (State.running) {
                     startNewRound();
@@ -1423,18 +1404,18 @@
         }
 
         function startNewRound() {
-            // إعادة تعيين المؤقت إلى 43 ثانية بالضبط
+            if (State.roundTimeoutId) {
+                clearTimeout(State.roundTimeoutId);
+                State.roundTimeoutId = null;
+            }
             State.roundTimer = 43;
             State.gameState = 1;
             State.waitingForServer = false;
-
-            // لا نمسح عرض الفاكهة - تبقى مثبتة حتى وصول فاكهة جديدة من السيرفر
             document.getElementById('liveProgressionText').textContent =
                 '🔄 جولة جديدة | في انتظار نتيجة السيرفر...';
             document.getElementById('roundTimerText').textContent = '🟢 وقت الرهان مفتوح';
             document.getElementById('timerText').textContent = '⏱️ 43s';
-
-            // توليد رهانات جديدة للتحليل
+            document.getElementById('timerFill').style.width = '0%';
             generateBets();
             addLog('🔄 بدء جولة جديدة - المؤقت 43 ثانية', 'system');
         }
@@ -1520,6 +1501,8 @@
             State.speed = parseInt(document.getElementById('selSpeed').value) || 2;
             State.waitingForServer = false;
             State.lastServerFruit = null;
+            if (State.roundTimeoutId) { clearTimeout(State.roundTimeoutId);
+                State.roundTimeoutId = null; }
             const btn = document.getElementById('connectBtn');
             btn.className = 'connect-btn hybrid';
             btn.textContent = '⏹ إيقاف المحرك';
@@ -1531,16 +1514,17 @@
             document.getElementById('liveServerFruitDisplay').style.textShadow = '0 0 8px #ffd70044';
             tryConnectWS();
             startGameLoop();
-            // بدء الاستماع لنتائج السيرفر من لوحة الإدارة
             listenToServerResults();
         }
 
         function stopEngine() {
             State.running = false;
             State.waitingForServer = false;
-            if (State.mainInterval) { clearInterval(State.mainInterval); State.mainInterval = null; }
+            if (State.mainInterval) { clearInterval(State.mainInterval);
+                State.mainInterval = null; }
+            if (State.roundTimeoutId) { clearTimeout(State.roundTimeoutId);
+                State.roundTimeoutId = null; }
             if (State.connector) { try { State.connector.close(); } catch (e) {} State.connector = null; }
-            // إيقاف مستمع currentRound
             if (State.serverListener) { db.ref('currentRound').off('value', State.serverListener); State.serverListener =
                     null; }
             const btn = document.getElementById('connectBtn');
@@ -1551,7 +1535,6 @@
             document.getElementById('liveMonitorCard').style.display = 'none';
         }
 
-        // مستمع نتائج السيرفر من Firebase
         function listenToServerResults() {
             if (State.serverListener) db.ref('currentRound').off('value', State.serverListener);
             State.serverListener = db.ref('currentRound').on('value', snap => {
@@ -1693,21 +1676,44 @@
         }
 
         // ================================================================
-        //  🎮  Game Loop - المؤقت 43 ثانية يعيد نفسه تلقائياً
+        //  🎮  Game Loop - المؤقت يعيد نفسه تلقائياً ولا يعلق أبداً
         // ================================================================
         function startGameLoop() {
             if (State.mainInterval) clearInterval(State.mainInterval);
             State.roundTimer = 43;
             State.gameState = 1;
             State.waitingForServer = false;
+            if (State.roundTimeoutId) { clearTimeout(State.roundTimeoutId);
+                State.roundTimeoutId = null; }
             generateBets();
             document.getElementById('timerText').textContent = '⏱️ 43s';
             document.getElementById('roundTimerText').textContent = '🟢 وقت الرهان مفتوح';
+            document.getElementById('timerFill').style.width = '0%';
+            document.getElementById('liveProgressionText').textContent = '🔄 بدء جولة جديدة...';
             const intervalMs = Math.max(300, Math.floor(1000 / State.speed));
-            State.mainInterval = setInterval(() => {
-                if (!State.running) return;
 
-                // المرحلة الأولى: الرهان والتحليل - العد التنازلي من 43
+            function scheduleRoundTimeout() {
+                if (State.roundTimeoutId) clearTimeout(State.roundTimeoutId);
+                // إذا لم تصل نتيجة من السيرفر خلال 12 ثانية، نبدأ جولة جديدة تلقائياً
+                State.roundTimeoutId = setTimeout(() => {
+                    if (State.running && State.waitingForServer && State.gameState === 0) {
+                        addLog('⏰ مهلة الجولة! لم تصل نتيجة من السيرفر - بدء جولة جديدة تلقائياً', 'warn');
+                        // استخدام فاكهة افتراضية من التحليل الحالي
+                        const fallbackWinner = State.codexAnalysis?.prediction?.fruit || FRUIT_KEYS[Math.floor(
+                            Math.random() * FRUIT_KEYS.length)];
+                        handleWinner(fallbackWinner);
+                        startNewRound();
+                    }
+                }, 12000);
+            }
+
+            State.mainInterval = setInterval(() => {
+                if (!State.running) {
+                    if (State.roundTimeoutId) { clearTimeout(State.roundTimeoutId);
+                        State.roundTimeoutId = null; }
+                    return;
+                }
+
                 if (State.gameState === 1) {
                     State.roundTimer -= 0.5;
                     if (State.roundTimer <= 0) {
@@ -1720,10 +1726,11 @@
                         document.getElementById('timerFill').style.width = '100%';
                         document.getElementById('liveProgressionText').textContent =
                             '⏳ انتهى وقت الرهان - في انتظار نتيجة السيرفر من لوحة الإدارة...';
-                        // لا نولد فائزاً، النتيجة تأتي من Firebase
+                        // بدء المهلة - إذا لم تصل نتيجة خلال 12 ثانية، نبدأ جولة جديدة
+                        scheduleRoundTimeout();
                         return;
                     }
-                    if (Math.random() < 0.3) { generateBets(); }
+                    if (Math.random() < 0.25) { generateBets(); }
                     updateBetsUI(State.bets);
                     const analysis = State.codex.analyze(State.bets);
                     if (analysis) {
@@ -1742,12 +1749,11 @@
                         phrases[Math.floor(Math.random() * phrases.length)];
                 }
 
-                // المرحلة الثانية: في انتظار نتيجة السيرفر
                 if (State.gameState === 0 && State.waitingForServer) {
                     document.getElementById('roundTimerText').textContent =
                         '🔴 في انتظار النتيجة من السيرفر...';
                     document.getElementById('liveProgressionText').textContent =
-                        '⏳ في انتظار نتيجة السيرفر من لوحة الإدارة...';
+                        '⏳ في انتظار نتيجة السيرفر من لوحة الإدارة... (مهلة 12 ثانية)';
                 }
 
                 document.getElementById('channelCountLabel').textContent = State.codexAnalysis?.all?.length || 0;
@@ -1792,8 +1798,6 @@
         initUI();
         addLog('[أمان] 🍒 YALLA FRUIT v7.0 SECURE جاهز', 'sec');
         addLog('[أمان] جاري التحقق من الاشتراك...', 'sec');
-
-        // بدء نظام الاشتراكات - هذا يحل محل النظام القديم
         checkAndInstallSubscription();
     </script>
 </body>
