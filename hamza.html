@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🍒 YALLA FRUIT v7.0 - HYBRID ENGINE</title>
+    <title>🍒 YALLA FRUIT v8.0 - HYBRID ENGINE ULTRA</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js">
@@ -16,12 +16,13 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #0a0a12;
+            background: #050508;
             color: #d0d0d0;
-            padding: 8px;
+            padding: 6px;
             min-height: 100vh;
             direction: rtl;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
         .container {
             max-width: 520px;
@@ -29,38 +30,39 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #0d0d1a, #1a0a0a);
-            border: 1px solid #ffd70033;
+            background: linear-gradient(135deg, #0d0d1a, #1a0505);
+            border: 1px solid #ffd70044;
             border-radius: 12px;
-            padding: 10px 14px;
-            margin-bottom: 8px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
             text-align: center;
         }
         .header h1 {
-            font-size: 18px;
+            font-size: 17px;
             color: #ffd700;
-            text-shadow: 0 0 10px #ffd70033;
+            text-shadow: 0 0 15px #ffd70055;
         }
         .header .sub {
-            font-size: 10px;
+            font-size: 9px;
             color: #888;
+            font-weight: 600;
         }
         .status-row {
             display: flex;
             justify-content: space-between;
-            font-size: 10px;
-            margin-top: 6px;
-            padding-top: 6px;
+            font-size: 9px;
+            margin-top: 4px;
+            padding-top: 4px;
             border-top: 1px solid #1a1a2a;
             flex-wrap: wrap;
-            gap: 4px;
+            gap: 3px;
         }
         .status-dot {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            margin-left: 4px;
+            margin-left: 3px;
         }
         .status-dot.green {
             background: #4caf50;
@@ -82,179 +84,209 @@
             background: #9c27b0;
             box-shadow: 0 0 6px #9c27b0;
         }
+        .status-dot.gold {
+            background: #ffd700;
+            box-shadow: 0 0 10px #ffd700;
+        }
 
         .card {
-            background: #0d0d1a;
-            border: 1px solid #1a1a2a;
+            background: #0a0a16;
+            border: 1px solid #151525;
             border-radius: 10px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
         }
         .card-title {
-            font-size: 11px;
+            font-size: 10px;
             color: #ffd700;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .card-title .badge {
-            font-size: 9px;
-            padding: 2px 8px;
+            font-size: 8px;
+            padding: 2px 6px;
             border-radius: 8px;
-            background: #1a1a2a;
+            background: #151525;
             color: #888;
         }
         .badge-gold {
             background: #2a1a00 !important;
             color: #ffd700 !important;
         }
-        .badge-subscribed {
-            background: #002a10 !important;
-            color: #4caf50 !important;
-            animation: pulse-sub 2s infinite;
+        .badge-ultra {
+            background: #4a0080 !important;
+            color: #e040fb !important;
+            animation: pulse-ultra 2s infinite;
         }
 
         .fruit-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            margin-bottom: 8px;
+            gap: 4px;
+            margin-bottom: 6px;
         }
         .fruit-cell {
-            background: #111122;
+            background: #0e0e20;
             border-radius: 8px;
-            padding: 6px 4px;
+            padding: 5px 3px;
             text-align: center;
-            border: 2px solid #1a1a2a;
+            border: 2px solid #151525;
             position: relative;
             transition: all 0.3s;
         }
         .fruit-cell .emoji {
-            font-size: 24px;
+            font-size: 22px;
             display: block;
         }
         .fruit-cell .name {
-            font-size: 9px;
-            margin: 2px 0;
+            font-size: 8px;
+            margin: 1px 0;
         }
         .fruit-cell .mult {
-            font-size: 8px;
+            font-size: 7px;
             color: #ffd70088;
         }
         .fruit-cell .bet-amount {
-            font-size: 10px;
+            font-size: 9px;
             color: #4caf50;
-            margin-top: 2px;
+            margin-top: 1px;
             direction: ltr;
             font-weight: bold;
         }
         .fruit-cell .players {
-            font-size: 8px;
-            color: #666;
+            font-size: 7px;
+            color: #555;
         }
         .fruit-cell.highlight-winner {
             border-color: #ffd700;
             background: #1a1a30;
-            box-shadow: 0 0 15px #ffd70044;
+            box-shadow: 0 0 20px #ffd70055;
+            transform: scale(1.05);
+            z-index: 2;
         }
         .fruit-cell.highlight-winner::after {
             content: "🏆";
             position: absolute;
-            top: -8px;
-            left: -8px;
-            font-size: 16px;
+            top: -10px;
+            left: -10px;
+            font-size: 18px;
         }
         .fruit-cell.highlight-recommend {
             border-color: #4caf50;
+            box-shadow: 0 0 10px #4caf5044;
+        }
+        .fruit-cell.highlight-super {
+            border-color: #e040fb;
+            box-shadow: 0 0 15px #e040fb66;
+            animation: pulse-super 1.5s infinite;
         }
         .fruit-cell.low-bet {
             border-color: #ff9800aa;
         }
-        .fruit-cell.special {
-            border-color: #e040fb;
-            box-shadow: 0 0 8px #e040fb44;
-        }
 
         .timer-container {
-            height: 4px;
-            background: #1a1a2a;
+            height: 3px;
+            background: #151525;
             border-radius: 2px;
             overflow: hidden;
-            margin: 4px 0;
+            margin: 3px 0;
         }
         .timer-fill {
             height: 100%;
             border-radius: 2px;
-            transition: width 0.5s linear;
+            transition: width 0.4s linear;
             background: linear-gradient(90deg, #4caf50, #ff9800, #f44336);
         }
         .timer-info {
             display: flex;
             justify-content: space-between;
-            font-size: 9px;
+            font-size: 8px;
             color: #666;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .prediction-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
+            gap: 5px;
         }
         .pred-option {
-            background: #0a0a18;
+            background: #080814;
             border-radius: 8px;
-            padding: 8px;
-            border: 1px solid #1a1a2a;
+            padding: 6px;
+            border: 2px solid #151525;
             cursor: pointer;
             transition: all 0.2s;
+            position: relative;
         }
         .pred-option:active {
-            transform: scale(0.97);
+            transform: scale(0.96);
         }
         .pred-option .pred-type {
-            font-size: 9px;
+            font-size: 8px;
             color: #888;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
         .pred-option .pred-fruit {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
-            margin: 2px 0;
+            margin: 1px 0;
         }
         .pred-option .pred-score {
-            font-size: 10px;
+            font-size: 9px;
             direction: ltr;
         }
         .pred-option .pred-note {
-            font-size: 8px;
+            font-size: 7px;
             color: #666;
-            margin-top: 2px;
+            margin-top: 1px;
         }
         .pred-option.selected {
             border-color: #ffd700;
             background: #1a1a30;
+            box-shadow: 0 0 15px #ffd70033;
         }
         .pred-option .pred-bar {
             height: 3px;
             border-radius: 2px;
-            margin-top: 4px;
+            margin-top: 3px;
             transition: width 0.5s;
+        }
+        .pred-option .confidence-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #4caf50;
+            color: #fff;
+            font-size: 7px;
+            padding: 1px 5px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .pred-option .confidence-badge.high {
+            background: #4caf50;
+        }
+        .pred-option .confidence-badge.medium {
+            background: #ff9800;
+        }
+        .pred-option .confidence-badge.low {
+            background: #f44336;
         }
 
         .warning-bar {
             background: #1a0a0033;
             border: 1px solid #ff980044;
             border-radius: 6px;
-            padding: 6px 8px;
-            margin-bottom: 6px;
-            font-size: 10px;
+            padding: 5px 7px;
+            margin-bottom: 5px;
+            font-size: 9px;
         }
         .warning-bar .warn-icon {
             color: #ff9800;
-            margin-left: 4px;
+            margin-left: 3px;
         }
         .warning-bar .warn-text {
             color: #ffcc80;
@@ -276,37 +308,44 @@
         .warning-bar.success .warn-text {
             color: #a5d6a7;
         }
+        .warning-bar.ultra {
+            background: #1a003033;
+            border-color: #e040fb44;
+        }
+        .warning-bar.ultra .warn-text {
+            color: #ce93d8;
+        }
 
         .bot-panel {
-            background: #0a0a18;
+            background: #080814;
             border: 1px solid #4caf5044;
             border-radius: 8px;
-            padding: 8px 10px;
-            margin-bottom: 8px;
+            padding: 6px 8px;
+            margin-bottom: 6px;
         }
         .bot-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .bot-header .bot-title {
-            font-size: 12px;
+            font-size: 11px;
             color: #4caf50;
             font-weight: bold;
         }
         .bot-controls {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             flex-wrap: wrap;
         }
         .bot-btn {
-            padding: 4px 10px;
-            border: 1px solid #1a1a2a;
+            padding: 3px 8px;
+            border: 1px solid #151525;
             border-radius: 4px;
-            font-size: 9px;
+            font-size: 8px;
             cursor: pointer;
-            background: #0d0d1a;
+            background: #0a0a18;
             color: #888;
             transition: 0.2s;
         }
@@ -328,41 +367,46 @@
             background: #2196f3;
             color: #fff;
         }
+        .bot-btn.ultra {
+            background: #9c27b0;
+            color: #fff;
+            border-color: #e040fb;
+        }
         .bot-info {
             display: flex;
             justify-content: space-between;
-            font-size: 9px;
+            font-size: 8px;
             color: #666;
             flex-wrap: wrap;
-            gap: 4px;
+            gap: 3px;
         }
 
         .raw-section {
-            background: #050510;
+            background: #030308;
             border-radius: 6px;
-            padding: 6px 8px;
+            padding: 4px 6px;
             font-family: monospace;
-            font-size: 8px;
+            font-size: 7px;
             direction: ltr;
-            max-height: 60px;
+            max-height: 50px;
             overflow-y: auto;
-            color: #888;
+            color: #777;
         }
 
         .log-panel {
-            background: #050510;
+            background: #030308;
             border-radius: 6px;
-            padding: 6px;
-            max-height: 140px;
+            padding: 4px;
+            max-height: 120px;
             overflow-y: auto;
             font-family: monospace;
-            font-size: 8px;
+            font-size: 7px;
             direction: ltr;
         }
         .log-entry {
-            padding: 2px 0;
+            padding: 1px 0;
             color: #666;
-            border-bottom: 1px solid #111;
+            border-bottom: 1px solid #0a0a12;
             text-align: left;
         }
         .log-entry.winner {
@@ -391,26 +435,34 @@
             color: #00e676;
             font-weight: bold;
         }
+        .log-entry.pred {
+            color: #e040fb;
+            font-weight: bold;
+        }
+        .log-entry.profit {
+            color: #ffd700;
+            font-weight: bold;
+        }
 
         .history-strip {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             flex-wrap: wrap;
         }
         .history-item {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 4px;
-            background: #111122;
-            border: 1px solid #1a1a2a;
+            background: #0e0e20;
+            border: 1px solid #151525;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
             position: relative;
         }
         .history-item .h-mult {
-            font-size: 6px;
+            font-size: 5px;
             color: #ffd700;
             position: absolute;
             bottom: 0;
@@ -420,31 +472,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 5px 0;
-            border-bottom: 1px solid #1a1a2a;
-            font-size: 10px;
+            padding: 4px 0;
+            border-bottom: 1px solid #151525;
+            font-size: 9px;
         }
         .setting-row input,
         .setting-row select {
-            background: #050510;
-            border: 1px solid #1a1a2a;
+            background: #030308;
+            border: 1px solid #151525;
             color: #d0d0d0;
-            padding: 3px 6px;
+            padding: 2px 5px;
             border-radius: 3px;
-            font-size: 9px;
-            width: 150px;
+            font-size: 8px;
+            width: 130px;
             direction: ltr;
         }
 
         .connect-btn {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             transition: all 0.3s;
             letter-spacing: 1px;
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
@@ -465,13 +517,18 @@
             background: #9c27b0;
             color: #fff;
         }
+        .connect-btn.ultra {
+            background: #e040fb;
+            color: #fff;
+            box-shadow: 0 0 20px #e040fb66;
+        }
 
         .mode-badge {
             display: inline-block;
-            padding: 2px 6px;
+            padding: 2px 5px;
             border-radius: 4px;
-            font-size: 8px;
-            margin-right: 4px;
+            font-size: 7px;
+            margin-right: 3px;
         }
         .mode-badge.real {
             background: #2196f3;
@@ -485,22 +542,58 @@
             background: #ff9800;
             color: #fff;
         }
+        .mode-badge.ultra {
+            background: #e040fb;
+            color: #fff;
+        }
 
         .ws-badge {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             color: #ffd700;
             text-shadow: 0 0 8px #ffd70044;
         }
 
-        /* ========== PIN OVERLAY ========== */
+        /* ULTRA confidence ring */
+        .ultra-ring {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 4px solid #151525;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 auto;
+        }
+        .ultra-ring .ring-fill {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #e040fb;
+            border-right-color: #ffd700;
+            transition: all 0.5s;
+            clip: rect(0, 48px, 48px, 24px);
+        }
+        .ultra-ring .ring-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            z-index: 2;
+        }
+
+        /* PIN OVERLAY */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #050508;
+            background: #030308;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -511,30 +604,30 @@
             padding: 20px;
         }
         .overlay-icon {
-            font-size: 60px;
-            margin-bottom: 20px;
+            font-size: 50px;
+            margin-bottom: 15px;
             filter: drop-shadow(0 0 15px #ffd700);
             animation: float 3s ease-in-out infinite;
         }
         .overlay-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 900;
             color: #ffd700;
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .overlay-sub {
-            font-size: 13px;
+            font-size: 12px;
             color: #888;
             font-weight: 600;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         .overlay-id {
             font-family: monospace;
             color: #fff;
-            font-size: 26px;
+            font-size: 24px;
             background: #0a0a12;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 12px;
             border: 1px solid #ffd70066;
             font-weight: 900;
@@ -552,27 +645,26 @@
             animation: scan 2.5s linear infinite;
         }
         .overlay-footer {
-            font-size: 12px;
+            font-size: 11px;
             color: #ff5252;
-            margin-top: 25px;
+            margin-top: 20px;
             font-weight: 900;
             background: rgba(255, 82, 82, 0.1);
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
             border: 1px solid rgba(255, 82, 82, 0.3);
         }
 
-        /* ========== SUBSCRIPTION INFO BAR ========== */
         .sub-bar {
             background: linear-gradient(135deg, #001a05, #0d0d1a);
             border: 1px solid #4caf5066;
             border-radius: 8px;
-            padding: 6px 10px;
-            margin-bottom: 8px;
+            padding: 5px 8px;
+            margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 10px;
+            font-size: 9px;
         }
         .sub-bar.permanent {
             background: linear-gradient(135deg, #001a05, #002010);
@@ -582,11 +674,38 @@
         .sub-bar .sub-status {
             color: #00e676;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 10px;
         }
         .sub-bar .sub-info {
             color: #a5d6a7;
+            font-size: 8px;
+        }
+
+        /* Prediction streak counter */
+        .streak-display {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+            margin: 4px 0;
             font-size: 9px;
+        }
+        .streak-display .streak-item {
+            background: #0a0a18;
+            border-radius: 6px;
+            padding: 3px 8px;
+            border: 1px solid #151525;
+            text-align: center;
+            min-width: 60px;
+        }
+        .streak-display .streak-item .label {
+            color: #666;
+            font-size: 7px;
+        }
+        .streak-display .streak-item .value {
+            font-size: 12px;
+            font-weight: bold;
+            color: #ffd700;
         }
 
         @keyframes float {
@@ -625,6 +744,24 @@
                 box-shadow: 0 0 14px #00e67688;
             }
         }
+        @keyframes pulse-ultra {
+            0%,
+            100% {
+                box-shadow: 0 0 5px #e040fb44;
+            }
+            50% {
+                box-shadow: 0 0 15px #e040fb88;
+            }
+        }
+        @keyframes pulse-super {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.04);
+            }
+        }
     </style>
 </head>
 <body>
@@ -634,10 +771,10 @@
         <div class="scan-line"></div>
         <div class="overlay-icon">🛡️</div>
         <div class="overlay-title">نظام الحماية والأمان النشط</div>
-        <div class="overlay-sub">جاري تشفير الاتصال والتحقق من صلاحيات الوصول...</div>
-        <div style="font-size: 12px; color: #666; margin-bottom: 10px; font-weight: bold;">المعرف الأمني لجهازك:</div>
+        <div class="overlay-sub">جاري التحقق من صلاحية الجهاز وتفعيل الاشتراك...</div>
+        <div style="font-size: 11px; color: #666; margin-bottom: 8px; font-weight: bold;">المعرف الأمني لجهازك:</div>
         <div class="overlay-id" id="displayDeviceId">...</div>
-        <div class="overlay-footer">يرجى تزويد المشرف بهذا المعرف لفك التشفير وتخطي الحرس الأمني</div>
+        <div class="overlay-footer">يرجى تزويد المشرف بهذا المعرف لفك التشفير</div>
     </div>
 
     <!-- ========== MAIN CONTAINER ========== -->
@@ -645,62 +782,92 @@
 
         <!-- Header -->
         <div class="header">
-            <h1>🍒 YALLA FRUIT v7.0 <span class="mode-badge hybrid">SECURE</span></h1>
-            <div class="sub">HYBRID ENGINE · REAL-TIME · استراتيجية الأقلية المتقدمة</div>
+            <h1>🍒 YALLA FRUIT v8.0 <span class="mode-badge ultra">ULTRA</span></h1>
+            <div class="sub">HYBRID ENGINE ULTRA · متعدد الطبقات · دقة عالية جداً</div>
             <div class="status-row">
-                <span><span class="status-dot green" id="statusDot"></span> <span id="statusText">الاتصال مشفر</span></span>
-                <span id="userDisplay">👤 <span id="headerDeviceId" style="font-family:monospace;color:#00bcd4;"></span></span>
+                <span><span class="status-dot gold" id="statusDot"></span> <span id="statusText">الاتصال مشفر</span></span>
+                <span id="userDisplay">👤 <span id="headerDeviceId" style="font-family:monospace;color:#e040fb;"></span></span>
                 <span>🎯 جولة: <span id="roundDisplay">0</span></span>
-                <span>📊: <span id="historyCount">0</span></span>
+                <span>🏆 <span id="historyCount">0</span></span>
             </div>
         </div>
 
-        <!-- ========== SUBSCRIPTION STATUS BAR ========== -->
+        <!-- SUBSCRIPTION BAR -->
         <div class="sub-bar permanent" id="subBar" style="display:none;">
             <span>🔐 <span class="sub-status">✅ اشتراك مثبت</span></span>
-            <span class="sub-info" id="subInfo">دائم - لا ينقطع</span>
+            <span class="sub-info" id="subInfo">دائم - مثبت على الجهاز</span>
         </div>
 
         <!-- Connect Button -->
         <button id="connectBtn" class="connect-btn disconnected" onclick="toggleConnection()">
-            🔗 تشغيل المحرك الهجين
+            🔗 تشغيل المحرك ULTRA
         </button>
 
         <!-- Mode Selection -->
-        <div style="display:flex;gap:4px;margin-bottom:8px;">
-            <button class="bot-btn primary" style="flex:1;" onclick="setMode('hybrid')">🔮 هجين (موصى به)</button>
+        <div style="display:flex;gap:3px;margin-bottom:6px;">
+            <button class="bot-btn ultra" style="flex:1;" onclick="setMode('ultra')">🟣 ULTRA (أفضل دقة)</button>
+            <button class="bot-btn primary" style="flex:1;" onclick="setMode('hybrid')">🔮 هجين</button>
             <button class="bot-btn" style="flex:1;" onclick="setMode('realtime')">📡 مباشر</button>
-            <button class="bot-btn" style="flex:1;" onclick="setMode('pcap')">📁 PCAP</button>
         </div>
 
-        <!-- Live Monitor -->
-        <div class="card" id="liveMonitorCard" style="border-color:#e040fb44;background:linear-gradient(135deg,#0d0d1a,#1a0025);display:none;">
-            <div class="card-title" style="color:#e040fb;">🧠 المحرك الهجين - HYBRID <span class="badge" id="modeLabel">نشط</span></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px;">
-                <span style="font-size:11px;color:#fff;">آخر فاكهة من التحليل:</span>
-                <span id="liveServerFruitDisplay" class="ws-badge">—</span>
+        <!-- ULTRA Live Monitor -->
+        <div class="card" id="liveMonitorCard" style="border-color:#e040fb66;background:linear-gradient(135deg,#0d0d1a,#150020);display:none;">
+            <div class="card-title" style="color:#e040fb;">🧠 المحرك ULTRA - متعدد الطبقات <span class="badge badge-ultra">نشط</span></div>
+
+            <!-- Confidence Ring -->
+            <div style="display:flex;align-items:center;gap:10px;margin:4px 0;">
+                <div class="ultra-ring">
+                    <div class="ring-fill" id="ringFill" style="transform:rotate(0deg);"></div>
+                    <div class="ring-value" id="ringValue">0%</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="display:flex;justify-content:space-between;font-size:8px;">
+                        <span style="color:#888;">آخر توقع:</span>
+                        <span id="liveServerFruitDisplay" class="ws-badge" style="font-size:13px;">—</span>
+                    </div>
+                    <div style="font-size:8px;color:#555;margin-top:2px;" id="liveMultiplierDisplay">مضاعف: —</div>
+                </div>
             </div>
-            <div id="liveProgressionText" style="font-size:9px;color:#888;font-family:monospace;margin-top:6px;border-top:1px solid #1a1a2a;padding-top:4px;">
-                حالة: تهيئة المحرك الهجين...
+
+            <div id="liveProgressionText" style="font-size:8px;color:#888;font-family:monospace;margin-top:4px;border-top:1px solid #151525;padding-top:3px;">
+                حالة: تهيئة المحرك ULTRA...
             </div>
-            <div style="display:flex;gap:4px;margin-top:6px;">
-                <span style="font-size:8px;color:#555;">📨 <span id="msgCountLabel">0</span></span>
-                <span style="font-size:8px;color:#555;">📊 <span id="channelCountLabel">0</span></span>
-                <span style="font-size:8px;color:#555;">🎯 <span id="accuracyLabel">0%</span></span>
+
+            <!-- Streak Display -->
+            <div class="streak-display">
+                <div class="streak-item">
+                    <div class="label">التسلسل</div>
+                    <div class="value" id="streakValue" style="color:#4caf50;">0</div>
+                </div>
+                <div class="streak-item">
+                    <div class="label">أفضل تسلسل</div>
+                    <div class="value" id="bestStreakValue" style="color:#ffd700;">0</div>
+                </div>
+                <div class="streak-item">
+                    <div class="label">نسبة دقة</div>
+                    <div class="value" id="liveAccuracyValue" style="color:#e040fb;">0%</div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:4px;margin-top:4px;">
+                <span style="font-size:7px;color:#555;">📨 <span id="msgCountLabel">0</span></span>
+                <span style="font-size:7px;color:#555;">📊 <span id="channelCountLabel">0</span></span>
+                <span style="font-size:7px;color:#555;">🎯 <span id="accuracyLabel">0%</span></span>
+                <span style="font-size:7px;color:#555;">🏆 <span id="profitLabel">0</span></span>
             </div>
         </div>
 
         <!-- Predictions -->
         <div class="card">
-            <div class="card-title">🎯 التوقعات <span class="badge badge-gold">CODEX v7.0</span></div>
+            <div class="card-title">🎯 توقعات ULTRA <span class="badge badge-ultra">MULTI-LAYER v8.0</span></div>
 
             <div id="warningPanel">
-                <div class="warning-bar"><span class="warn-icon">⏳</span> <span class="warn-text">اضغط "تشغيل المحرك الهجين" لبدء التحليل...</span></div>
+                <div class="warning-bar"><span class="warn-icon">⏳</span> <span class="warn-text">اضغط "تشغيل المحرك ULTRA" لبدء التحليل متعدد الطبقات...</span></div>
             </div>
 
             <div class="prediction-grid">
                 <div class="pred-option" id="optSmall1" onclick="selectOption('small1')">
-                    <div class="pred-type">🟢 SMALL 1</div>
+                    <div class="pred-type">🟢 SMALL 1 (الأقلية)</div>
                     <div class="pred-fruit" id="optSmall1Fruit">🍎 تفاح x5</div>
                     <div class="pred-score" id="optSmall1Score" style="color:#888;">Score: --</div>
                     <div class="pred-note" id="optSmall1Note">بانتظار التحليل...</div>
@@ -714,7 +881,7 @@
                     <div class="pred-bar" id="optSmall2Bar" style="width:0%;background:#4caf50;"></div>
                 </div>
                 <div class="pred-option" id="optBig1" onclick="selectOption('big1')">
-                    <div class="pred-type">🔴 BIG 1</div>
+                    <div class="pred-type">🔴 BIG 1 (الأقلية)</div>
                     <div class="pred-fruit" id="optBig1Fruit">🍒 كرز x45</div>
                     <div class="pred-score" id="optBig1Score" style="color:#888;">Score: --</div>
                     <div class="pred-note" id="optBig1Note">بانتظار التحليل...</div>
@@ -732,7 +899,7 @@
 
         <!-- Fruit Board -->
         <div class="card">
-            <div class="card-title">🍇 الفواكه — الرهانات الحية <span class="badge" id="playersBadge">0</span></div>
+            <div class="card-title">🍇 الفواكه <span class="badge" id="playersBadge">0</span></div>
             <div id="fruitBoard" class="fruit-grid"></div>
             <div class="timer-container"><div class="timer-fill" id="timerFill" style="width:0%;"></div></div>
             <div class="timer-info">
@@ -741,10 +908,10 @@
             </div>
         </div>
 
-        <!-- BOT -->
+        <!-- BOT v4 ULTRA -->
         <div class="bot-panel">
             <div class="bot-header">
-                <span class="bot-title">🤖 BOT v3 - تلقائي بالكامل</span>
+                <span class="bot-title">🤖 BOT v4 ULTRA - تلقائي بالكامل</span>
                 <div class="bot-controls">
                     <button class="bot-btn" id="botAutoBtn" onclick="toggleBot()">▶ تفعيل</button>
                     <button class="bot-btn" onclick="setBotRounds(4)">4</button>
@@ -763,30 +930,30 @@
 
         <!-- Stats -->
         <div class="card">
-            <div class="card-title">📊 إحصائيات CODEX <span class="badge" id="accuracyBadge">0%</span></div>
+            <div class="card-title">📊 إحصائيات ULTRA <span class="badge" id="accuracyBadge">0%</span></div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;">
-                <div style="background:#050510;border-radius:6px;padding:6px;text-align:center;">
-                    <div style="font-size:8px;color:#666;">إجمالي</div>
-                    <div style="font-size:16px;color:#fff;font-weight:bold;" id="statTotal">0</div>
+                <div style="background:#030308;border-radius:6px;padding:5px;text-align:center;">
+                    <div style="font-size:7px;color:#666;">إجمالي</div>
+                    <div style="font-size:14px;color:#fff;font-weight:bold;" id="statTotal">0</div>
                 </div>
-                <div style="background:#050510;border-radius:6px;padding:6px;text-align:center;">
-                    <div style="font-size:8px;color:#666;">فوز</div>
-                    <div style="font-size:16px;color:#4caf50;font-weight:bold;" id="statWins">0</div>
+                <div style="background:#030308;border-radius:6px;padding:5px;text-align:center;">
+                    <div style="font-size:7px;color:#666;">فوز</div>
+                    <div style="font-size:14px;color:#4caf50;font-weight:bold;" id="statWins">0</div>
                 </div>
-                <div style="background:#050510;border-radius:6px;padding:6px;text-align:center;">
-                    <div style="font-size:8px;color:#666;">خسارة</div>
-                    <div style="font-size:16px;color:#f44336;font-weight:bold;" id="statLosses">0</div>
+                <div style="background:#030308;border-radius:6px;padding:5px;text-align:center;">
+                    <div style="font-size:7px;color:#666;">خسارة</div>
+                    <div style="font-size:14px;color:#f44336;font-weight:bold;" id="statLosses">0</div>
                 </div>
-                <div style="background:#050510;border-radius:6px;padding:6px;text-align:center;">
-                    <div style="font-size:8px;color:#666;">ثقة</div>
-                    <div style="font-size:16px;color:#ffd700;font-weight:bold;" id="statConfidence">0%</div>
+                <div style="background:#030308;border-radius:6px;padding:5px;text-align:center;">
+                    <div style="font-size:7px;color:#666;">ثقة</div>
+                    <div style="font-size:14px;color:#e040fb;font-weight:bold;" id="statConfidence">0%</div>
                 </div>
             </div>
         </div>
 
         <!-- RAW Data -->
         <div class="card">
-            <div class="card-title">📡 بيانات التحليل <span class="badge">مباشر</span></div>
+            <div class="card-title">📡 بيانات التحليل متعدد الطبقات <span class="badge">مباشر</span></div>
             <div class="raw-section" id="rawData">اضغط "تشغيل" للبدء...</div>
         </div>
 
@@ -794,15 +961,15 @@
         <div class="card">
             <div class="card-title">🏆 آخر النتائج <span class="badge" id="recentCount">0</span></div>
             <div class="history-strip" id="historyStrip">
-                <span style="color:#666;font-size:10px;padding:5px;">لا توجد نتائج بعد</span>
+                <span style="color:#666;font-size:9px;padding:4px;">لا توجد نتائج بعد</span>
             </div>
         </div>
 
         <!-- Log -->
         <div class="card">
-            <div class="card-title">📋 سجل الحماية والعمليات</div>
+            <div class="card-title">📋 سجل العمليات</div>
             <div class="log-panel" id="logPanel">
-                <div class="log-entry system">[أمان] النظام مشفر وجاهز. بانتظار أمر الاتصال.</div>
+                <div class="log-entry system">[أمان] النظام مشفر. بانتظار أمر الاتصال.</div>
             </div>
         </div>
 
@@ -812,9 +979,9 @@
             <div class="setting-row">
                 <span>وضع التشغيل</span>
                 <select id="selMode">
-                    <option value="hybrid">HYBRID (أفضل دقة)</option>
-                    <option value="realtime">مباشر Real-time</option>
-                    <option value="simulation">محاكاة للاختبار</option>
+                    <option value="ultra">ULTRA (أفضل دقة - موصى به)</option>
+                    <option value="hybrid">HYBRID</option>
+                    <option value="realtime">مباشر</option>
                 </select>
             </div>
             <div class="setting-row">
@@ -822,7 +989,7 @@
                 <select id="selServer">
                     <option value="chatws.tuvbreeze.com">chatws.tuvbreeze.com</option>
                     <option value="roomws13.tuvbreeze.com">roomws13.tuvbreeze.com</option>
-                    <option value="auto">🔄 تلقائي (أفضل أداء)</option>
+                    <option value="auto">🔄 تلقائي (موصى به)</option>
                 </select>
             </div>
             <div class="setting-row">
@@ -843,18 +1010,37 @@
                     <option value="1">1x (قياسي)</option>
                     <option value="2" selected>2x (سريع)</option>
                     <option value="3">3x (فائق)</option>
+                    <option value="4">4x (أقصى سرعة)</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <span>استراتيجية التوقع</span>
+                <select id="selStrategy">
+                    <option value="minority">🎯 الأقلية المتقدمة (موصى به)</option>
+                    <option value="pattern">📊 أنماط السيرفر</option>
+                    <option value="ml">🧠 تعلم آلي</option>
+                    <option value="hybrid_all">🔀 هجين كامل</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <span>حماية التتبع</span>
+                <select id="selAntiDetect">
+                    <option value="high">🛡️ عالية (موصى به)</option>
+                    <option value="medium">🛡️ متوسطة</option>
+                    <option value="low">🛡️ منخفضة</option>
                 </select>
             </div>
             <div class="setting-row">
                 <span>حفظ التقرير</span>
                 <button class="bot-btn" onclick="downloadLog()">💾 حفظ</button>
+                <button class="bot-btn warning" onclick="resetStats()">🔄 تصفير</button>
             </div>
         </div>
     </div>
 
     <script>
         // ================================================================
-        //  🔥 FIREBASE
+        //  🔥 FIREBASE - ثابت
         // ================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyAo4IaLd5SfVYHAAp_noJD7ZXBbhdVx9-0",
@@ -869,13 +1055,14 @@
         const db = firebase.database();
 
         // ================================================================
-        //  🔐 SECURITY - معرف جهاز ثابت
+        //  🔐 معرف الجهاز الثابت
         // ================================================================
         const generateOrGetFixedId = () => {
-            let id = localStorage.getItem('fixedDeviceId');
+            let id = localStorage.getItem('fixedDeviceIdUltra');
             if (!id) {
-                id = 'SEC_' + Math.random().toString(36).substr(2, 10).toUpperCase();
-                localStorage.setItem('fixedDeviceId', id);
+                id = 'ULTRA_' + Math.random().toString(36).substr(2, 8).toUpperCase() + '_' + Date.now().toString(36)
+                    .toUpperCase();
+                localStorage.setItem('fixedDeviceIdUltra', id);
             }
             return id;
         };
@@ -883,12 +1070,15 @@
         Object.defineProperty(window, 'FIXED_DEVICE_ID', { value: FIXED_DEVICE_ID, writable: false, configurable: false });
 
         document.getElementById('displayDeviceId').textContent = FIXED_DEVICE_ID;
-        document.getElementById('headerDeviceId').textContent = FIXED_DEVICE_ID.substring(0, 9);
+        document.getElementById('headerDeviceId').textContent = FIXED_DEVICE_ID.substring(0, 8);
 
         // ================================================================
         //  📡 FIREBASE PRESENCE
         // ================================================================
+        let presenceSetupDone = false;
         function setupPresence() {
+            if (presenceSetupDone) return;
+            presenceSetupDone = true;
             const userStatusRef = db.ref('activeUsers/' + FIXED_DEVICE_ID);
             const connectedRef = db.ref('.info/connected');
             connectedRef.on('value', (snap) => {
@@ -896,7 +1086,8 @@
                     userStatusRef.set({
                         id: FIXED_DEVICE_ID,
                         status: 'online',
-                        lastActive: firebase.database.ServerValue.TIMESTAMP
+                        lastActive: firebase.database.ServerValue.TIMESTAMP,
+                        version: 'v8.0-ULTRA'
                     });
                     userStatusRef.onDisconnect().set({
                         id: FIXED_DEVICE_ID,
@@ -916,18 +1107,14 @@
         }
 
         // ================================================================
-        //  📋 SUBSCRIPTION SYSTEM - اشتراك دائم لا ينقطع
+        //  📋 SUBSCRIPTION SYSTEM - دائم لا ينقطع
         // ================================================================
-        const SUBSCRIPTION_STORAGE_KEY = 'yalla_subscription_v7';
+        const SUBSCRIPTION_STORAGE_KEY = 'yalla_subscription_v8_ultra';
 
         function saveSubscriptionLocally(subData) {
-            const data = {
-                ...subData,
-                savedAt: Date.now(),
-                deviceId: FIXED_DEVICE_ID
-            };
+            const data = { ...subData, savedAt: Date.now(), deviceId: FIXED_DEVICE_ID };
             localStorage.setItem(SUBSCRIPTION_STORAGE_KEY, JSON.stringify(data));
-            addLog('🔐 تم تثبيت الاشتراك محلياً على الجهاز', 'sub');
+            addLog('🔐 تم تثبيت الاشتراك محلياً', 'sub');
         }
 
         function getLocalSubscription() {
@@ -935,13 +1122,8 @@
                 const raw = localStorage.getItem(SUBSCRIPTION_STORAGE_KEY);
                 if (!raw) return null;
                 const data = JSON.parse(raw);
-                if (data.deviceId === FIXED_DEVICE_ID) {
-                    return data;
-                }
-                return null;
-            } catch (e) {
-                return null;
-            }
+                return data.deviceId === FIXED_DEVICE_ID ? data : null;
+            } catch (e) { return null; }
         }
 
         function showSubscriptionBar(subData) {
@@ -949,28 +1131,33 @@
             bar.style.display = 'flex';
             const info = document.getElementById('subInfo');
             if (subData.permanent || subData.type === 'permanent') {
-                info.textContent = '🔒 دائم - لا ينقطع أبداً';
+                info.textContent = '🔒 دائم - مثبت على الجهاز';
                 bar.className = 'sub-bar permanent';
             } else if (subData.expiresAt) {
                 const expDate = new Date(subData.expiresAt);
                 info.textContent = '📅 صالح حتى: ' + expDate.toLocaleDateString('ar-SA');
                 bar.className = 'sub-bar permanent';
             } else {
-                info.textContent = '✅ نشط - مثبت على الجهاز';
+                info.textContent = '✅ نشط - مثبت';
                 bar.className = 'sub-bar permanent';
             }
-            addLog('🔐 اشتراك مثبت ونشط - لن ينقطع', 'sub');
+            addLog('🔐 اشتراك مثبت ونشط', 'sub');
         }
 
+        let subscriptionCheckDone = false;
+
         function checkAndInstallSubscription() {
+            if (subscriptionCheckDone) return;
             const localSub = getLocalSubscription();
 
-            db.ref('subscriptions/' + FIXED_DEVICE_ID).on('value', snap => {
+            // 🔧 استخدام once بدلاً من on لمنع الحلقة اللانهائية
+            db.ref('subscriptions/' + FIXED_DEVICE_ID).once('value').then(snap => {
                 const remoteSub = snap.val();
-
                 if (remoteSub && remoteSub.active === true) {
+                    subscriptionCheckDone = true;
                     saveSubscriptionLocally(remoteSub);
                     showSubscriptionBar(remoteSub);
+                    // تحديث بصمت دون استدعاء listener جديد
                     db.ref('subscriptions/' + FIXED_DEVICE_ID).update({
                         installedAt: firebase.database.ServerValue.TIMESTAMP,
                         deviceId: FIXED_DEVICE_ID,
@@ -980,64 +1167,78 @@
                     document.getElementById('pinOverlay').style.display = 'none';
                     document.getElementById('mainContainer').style.display = 'block';
                     setupPresence();
-                    addLog('🔐 تم تثبيت الاشتراك من السحابة - اشتراك دائم', 'sub');
+                    addLog('🔐 اشتراك مثبت من السحابة', 'sub');
                     db.ref('approvedUsers/' + FIXED_DEVICE_ID).set(true);
                     db.ref('pendingUsers/' + FIXED_DEVICE_ID).remove();
                 } else if (localSub && localSub.active === true) {
+                    subscriptionCheckDone = true;
                     db.ref('subscriptions/' + FIXED_DEVICE_ID).set({
                         ...localSub,
                         reInstalledAt: firebase.database.ServerValue.TIMESTAMP,
                         deviceId: FIXED_DEVICE_ID,
-                        lastSeen: firebase.database.ServerValue.TIMESTAMP,
-                        status: 'reinstalled_from_local'
+                        status: 'reinstalled_local'
                     });
                     showSubscriptionBar(localSub);
                     document.getElementById('pinOverlay').style.display = 'none';
                     document.getElementById('mainContainer').style.display = 'block';
                     setupPresence();
                     db.ref('approvedUsers/' + FIXED_DEVICE_ID).set(true);
-                    addLog('🔐 تم استعادة الاشتراك من الذاكرة المحلية وإعادة تثبيته', 'sub');
+                    addLog('🔐 استعادة الاشتراك من الذاكرة المحلية', 'sub');
                 } else {
                     checkLegacyApproval();
+                }
+            }).catch(err => {
+                addLog('⚠️ خطأ في التحقق من الاشتراك: ' + err.message, 'error');
+                // في حالة الخطأ، تجربة الاشتراك المحلي
+                if (localSub && localSub.active === true) {
+                    subscriptionCheckDone = true;
+                    showSubscriptionBar(localSub);
+                    document.getElementById('pinOverlay').style.display = 'none';
+                    document.getElementById('mainContainer').style.display = 'block';
+                    setupPresence();
+                    addLog('🔐 استعادة اشتراك (وضع الطوارئ)', 'sub');
                 }
             });
         }
 
         function checkLegacyApproval() {
-            db.ref('approvedUsers/' + FIXED_DEVICE_ID).on('value', snap => {
-                const isApproved = snap.val();
-                if (isApproved) {
-                    const permanentSub = {
+            // 🔧 استخدام once بدلاً من on لتجنب listeners المتعددة
+            db.ref('approvedUsers/' + FIXED_DEVICE_ID).once('value').then(snap => {
+                if (subscriptionCheckDone) return;
+                if (snap.val()) {
+                    subscriptionCheckDone = true;
+                    const permSub = {
                         active: true,
                         type: 'permanent',
                         permanent: true,
                         createdAt: Date.now(),
                         deviceId: FIXED_DEVICE_ID,
-                        note: 'تم الترقية من موافقة قديمة إلى اشتراك دائم'
+                        note: 'تمت الترقية إلى اشتراك دائم'
                     };
-                    db.ref('subscriptions/' + FIXED_DEVICE_ID).set(permanentSub);
-                    saveSubscriptionLocally(permanentSub);
+                    db.ref('subscriptions/' + FIXED_DEVICE_ID).set(permSub);
+                    saveSubscriptionLocally(permSub);
                     document.getElementById('pinOverlay').style.display = 'none';
                     document.getElementById('mainContainer').style.display = 'block';
-                    showSubscriptionBar(permanentSub);
-                    addLog('✅ تمت ترقية الموافقة إلى اشتراك دائم مثبت', 'sub');
+                    showSubscriptionBar(permSub);
+                    addLog('✅ ترقية إلى اشتراك دائم', 'sub');
                     db.ref('pendingUsers/' + FIXED_DEVICE_ID).remove();
                     setupPresence();
                 } else {
                     const localSub = getLocalSubscription();
                     if (localSub && localSub.active === true) {
+                        subscriptionCheckDone = true;
                         db.ref('subscriptions/' + FIXED_DEVICE_ID).set({
                             ...localSub,
                             reInstalledAt: firebase.database.ServerValue.TIMESTAMP,
                             deviceId: FIXED_DEVICE_ID,
-                            status: 'reinstalled_from_local_only'
+                            status: 'reinstalled_local_only'
                         });
                         db.ref('approvedUsers/' + FIXED_DEVICE_ID).set(true);
                         document.getElementById('pinOverlay').style.display = 'none';
                         document.getElementById('mainContainer').style.display = 'block';
                         showSubscriptionBar(localSub);
                         setupPresence();
-                        addLog('🔐 تم استعادة الاشتراك من الذاكرة المحلية (وضع الطوارئ)', 'sub');
+                        addLog('🔐 استعادة اشتراك (طوارئ)', 'sub');
                     } else {
                         document.getElementById('pinOverlay').style.display = 'flex';
                         document.getElementById('mainContainer').style.display = 'none';
@@ -1049,38 +1250,60 @@
                         db.ref('pendingUsers/' + FIXED_DEVICE_ID).onDisconnect().remove();
                     }
                 }
+            }).catch(err => {
+                addLog('⚠️ خطأ في التحقق القديم: ' + err.message, 'error');
+                // عرض overlay في حالة الفشل
+                document.getElementById('pinOverlay').style.display = 'flex';
+                document.getElementById('mainContainer').style.display = 'none';
             });
         }
 
         // ================================================================
-        //  🍎🍋🍇🍊🍓🥭🍉🍒  بيانات الفواكه
+        //  🍎 بيانات الفواكه
         // ================================================================
         const FRUITS = {
-            orange: { id: 1, name: "برتقال", emoji: "🍊", mult: 5, color: "#ff9800", group: "small" },
-            lemon: { id: 2, name: "ليمون", emoji: "🍋", mult: 5, color: "#ffeb3b", group: "small" },
-            grape: { id: 3, name: "عنب", emoji: "🍇", mult: 5, color: "#9c27b0", group: "small" },
-            apple: { id: 4, name: "تفاح", emoji: "🍎", mult: 5, color: "#f44336", group: "small" },
-            strawberry: { id: 5, name: "فراولة", emoji: "🍓", mult: 10, color: "#e91e63", group: "small" },
-            mango: { id: 6, name: "مانجو", emoji: "🥭", mult: 15, color: "#ff9800", group: "big" },
-            watermelon: { id: 7, name: "بطيخ", emoji: "🍉", mult: 25, color: "#4caf50", group: "big" },
-            cherry: { id: 8, name: "كرز", emoji: "🍒", mult: 45, color: "#d32f2f", group: "big" }
+            orange: { id: 1, name: "برتقال", emoji: "🍊", mult: 5, color: "#ff9800", group: "small", weight: 1.0 },
+            lemon: { id: 2, name: "ليمون", emoji: "🍋", mult: 5, color: "#ffeb3b", group: "small", weight: 1.0 },
+            grape: { id: 3, name: "عنب", emoji: "🍇", mult: 5, color: "#9c27b0", group: "small", weight: 1.0 },
+            apple: { id: 4, name: "تفاح", emoji: "🍎", mult: 5, color: "#f44336", group: "small", weight: 1.0 },
+            strawberry: { id: 5, name: "فراولة", emoji: "🍓", mult: 10, color: "#e91e63", group: "big", weight: 0.9 },
+            mango: { id: 6, name: "مانجو", emoji: "🥭", mult: 15, color: "#ff9800", group: "big", weight: 0.8 },
+            watermelon: { id: 7, name: "بطيخ", emoji: "🍉", mult: 25, color: "#4caf50", group: "big", weight: 0.7 },
+            cherry: { id: 8, name: "كرز", emoji: "🍒", mult: 45, color: "#d32f2f", group: "big", weight: 0.6 }
         };
         const FRUIT_KEYS = Object.keys(FRUITS);
         const SMALL_KEYS = FRUIT_KEYS.filter(k => FRUITS[k].group === "small");
         const BIG_KEYS = FRUIT_KEYS.filter(k => FRUITS[k].group === "big");
 
         // ================================================================
-        //  🧠  CODEX Engine v7.0
+        //  🧠  CODEX Engine v8.0 ULTRA - متعدد الطبقات
         // ================================================================
-        class CodexEngine {
+        class CodexUltraEngine {
             constructor() {
                 this.history = [];
-                this.stats = { total: 0, wins: 0, losses: 0, winRate: 0, profit: 0 };
+                this.stats = { total: 0, wins: 0, losses: 0, winRate: 0, profit: 0, bestStreak: 0, currentStreak: 0 };
                 this.fruitStats = {};
                 this.currentRound = 0;
                 this.targetFruit = null;
-                this.confidence = 50;
+                this.confidence = 60;
                 this.lastAnalysis = null;
+
+                // طبقات التحليل المتعددة
+                this.layers = {
+                    minority: { weight: 0.35, score: 0 },
+                    pattern: { weight: 0.25, score: 0 },
+                    ml: { weight: 0.25, score: 0 },
+                    momentum: { weight: 0.15, score: 0 }
+                };
+
+                // مصفوفة أنماط السيرفر
+                this.patterns = [];
+                this.serverBias = {};
+
+                // ذاكرة التعلم
+                this.mlMemory = [];
+                this.predictionHistory = [];
+
                 FRUIT_KEYS.forEach(k => {
                     this.fruitStats[k] = {
                         appearances: 0,
@@ -1088,42 +1311,56 @@
                         winRate: 0,
                         lastSeenRound: 0,
                         streak: 0,
-                        maxStreak: 0
+                        maxStreak: 0,
+                        avgBet: 0,
+                        totalBet: 0,
+                        timesPredicted: 0,
+                        timesCorrect: 0,
+                        predictionAccuracy: 50,
+                        momentum: 0,
+                        last5Positions: []
                     };
+                    this.serverBias[k] = { count: 0, lastSeen: 0, avgGap: 0, gaps: [] };
                 });
             }
-            analyze(bets) {
-                this.currentRound++;
-                const results = [];
+
+            // الطبقة الأولى: تحليل الأقلية المتقدم
+            analyzeMinority(bets) {
                 const totalBets = Object.values(bets).reduce((a, b) => a + b, 0);
                 const n = Object.keys(bets).length;
                 if (totalBets === 0 || n < 4) return null;
+
                 const sorted = Object.entries(bets).sort((a, b) => a[1] - b[1]);
-                sorted.forEach(([fruit, amount]) => {
+                const results = [];
+
+                sorted.forEach(([fruit, amount], idx) => {
                     const f = FRUITS[fruit];
-                    const pct = totalBets > 0 ? (amount / totalBets) * 100 : 0;
-                    const rank = sorted.findIndex(x => x[0] === fruit) + 1;
+                    const pct = (amount / totalBets) * 100;
+                    const rank = idx + 1;
                     const fStat = this.fruitStats[fruit];
-                    const rankBonus = (n - rank + 1) / n;
-                    let historyBonus = 1.0;
+
+                    // عامل الندرة - كلما قل الرهان كلما كان أفضل
+                    const rarityFactor = Math.max(0.5, (100 - pct) / 100);
+
+                    // عامل الترتيب
+                    const rankFactor = (n - rank + 1) / n;
+
+                    // عامل التكرار - الفاكهة التي لم تظهر منذ فترة
+                    let recencyFactor = 1.0;
                     if (fStat.lastSeenRound > 0) {
                         const roundsAgo = this.currentRound - fStat.lastSeenRound;
-                        if (roundsAgo > 5) historyBonus = 1.5;
-                        else if (roundsAgo > 3) historyBonus = 1.25;
-                        else if (roundsAgo > 1) historyBonus = 1.1;
-                        else historyBonus = 0.85;
+                        recencyFactor = roundsAgo > 8 ? 2.0 : roundsAgo > 5 ? 1.6 : roundsAgo > 3 ? 1.3 : roundsAgo > 1 ?
+                            1.1 : 0.7;
                     }
-                    const recentWins = this.history.slice(-4).filter(h => h === fruit).length;
-                    if (recentWins >= 2) historyBonus *= 0.6;
-                    if (recentWins >= 3) historyBonus *= 0.3;
-                    if (fStat.streak > 0) historyBonus *= (1 + fStat.streak * 0.1);
-                    let winRateBonus = 1.0;
-                    if (fStat.appearances > 5) {
-                        const wr = fStat.winRate / 100;
-                        winRateBonus = 1 + (wr - 0.2) * 0.5;
-                    }
-                    const score = (f.mult * 100) / (pct + 3) * rankBonus * historyBonus * winRateBonus;
-                    const confidence = Math.min(99, Math.round((score / 150) * 100));
+
+                    // عامل المضاعف - الفواكه ذات المضاعف العالي أفضل للأقلية
+                    const multFactor = 1 + (f.mult - 5) * 0.02;
+
+                    // معادلة الأقلية المتطورة
+                    const score = (f.mult * 100) / (pct + 2) * rarityFactor * rankFactor * recencyFactor * multFactor;
+
+                    const confidence = Math.min(99, Math.round((score / 120) * 100));
+
                     results.push({
                         fruit,
                         amount,
@@ -1135,62 +1372,400 @@
                         emoji: f.emoji,
                         name: f.name,
                         group: f.group,
-                        note: rank === 1 ? `🎯 الهدف الرئيسي - ثقة ${confidence}%` :
-                            rank === 2 ? `🎯 ثاني أفضل خيار` :
-                            pct < 10 ? "📊 رهانات منخفضة - جيد" :
-                            pct > 30 ? "⚠️ رهانات مرتفعة" : "📊 متوسط"
+                        layer: 'minority',
+                        note: rank === 1 ? `🎯 الأقلية المثلى!` :
+                            pct < 8 ? "📊 رهانات منخفضة جداً" :
+                            pct < 15 ? "📊 رهانات منخفضة" :
+                            pct > 35 ? "⚠️ رهانات مرتفعة" : "📊 متوسط"
+                    });
+                });
+
+                results.sort((a, b) => b.score - a.score);
+                return results;
+            }
+
+            // الطبقة الثانية: تحليل الأنماط
+            analyzePatterns() {
+                const results = [];
+                FRUIT_KEYS.forEach(k => {
+                    const f = FRUITS[k];
+                    const fStat = this.fruitStats[k];
+                    const sBias = this.serverBias[k];
+
+                    let patternScore = 50;
+
+                    // تحليل التكرارات السابقة
+                    if (this.history.length >= 3) {
+                        const last3 = this.history.slice(-3);
+                        const count = last3.filter(h => h === k).length;
+
+                        // إذا ظهرت 3 مرات متتالية، احتمال كبير ألا تظهر الآن
+                        if (count >= 3) patternScore -= 30;
+                        else if (count >= 2) patternScore -= 15;
+                        else if (count === 0) patternScore += 10;
+
+                        // تحليل المطاولة (streak)
+                        if (fStat.streak > 3) patternScore -= 20;
+                        else if (fStat.streak > 1) patternScore -= 5;
+                    }
+
+                    // تحليل الفجوات (Gap Analysis)
+                    if (sBias.gaps.length >= 3) {
+                        const avgGap = sBias.gaps.reduce((a, b) => a + b, 0) / sBias.gaps.length;
+                        const roundsSinceLast = this.currentRound - sBias.lastSeen;
+                        if (roundsSinceLast > avgGap * 1.5) patternScore += 20;
+                        else if (roundsSinceLast > avgGap) patternScore += 10;
+                    }
+
+                    // تحليل المجموعات: small vs big
+                    const recentWinners = this.history.slice(-5);
+                    const smallCount = recentWinners.filter(h => FRUITS[h]?.group === "small").length;
+                    const bigCount = recentWinners.filter(h => FRUITS[h]?.group === "big").length;
+
+                    if (f.group === "small" && bigCount > smallCount + 2) patternScore += 15;
+                    if (f.group === "big" && smallCount > bigCount + 2) patternScore += 15;
+                    if (f.group === "small" && smallCount > 3) patternScore -= 10;
+                    if (f.group === "big" && bigCount > 3) patternScore -= 10;
+
+                    // تحليل التوزيع الدوري
+                    if (this.history.length >= 10) {
+                        const positions = [];
+                        this.history.forEach((h, i) => {
+                            if (h === k) positions.push(i);
+                        });
+                        if (positions.length >= 2) {
+                            const gaps = [];
+                            for (let i = 1; i < positions.length; i++) {
+                                gaps.push(positions[i] - positions[i - 1]);
+                            }
+                            const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+                            const lastGap = this.history.length - 1 - positions[positions.length - 1];
+                            if (lastGap >= avgGap * 1.3) patternScore += 15;
+                        }
+                    }
+
+                    patternScore = Math.min(99, Math.max(1, patternScore));
+
+                    results.push({
+                        fruit: k,
+                        score: patternScore,
+                        confidence: patternScore,
+                        mult: f.mult,
+                        emoji: f.emoji,
+                        name: f.name,
+                        group: f.group,
+                        layer: 'pattern',
+                        note: patternScore > 75 ? "📐 نمط قوي" :
+                            patternScore > 55 ? "📐 نمط متوسط" : "📐 نمط ضعيف"
                     });
                 });
                 results.sort((a, b) => b.score - a.score);
-                const smalls = results.filter(r => r.group === "small");
-                const bigs = results.filter(r => r.group === "big");
+                return results;
+            }
+
+            // الطبقة الثالثة: التعلم الآلي المبسط
+            analyzeML() {
+                const results = [];
+                FRUIT_KEYS.forEach(k => {
+                    const f = FRUITS[k];
+                    const fStat = this.fruitStats[k];
+                    let mlScore = 50;
+
+                    // دقة التوقعات السابقة
+                    if (fStat.timesPredicted > 0) {
+                        const acc = (fStat.timesCorrect / fStat.timesPredicted) * 100;
+                        mlScore += (acc - 50) * 0.5;
+                    }
+
+                    // تحليل أداء الفاكهة
+                    if (fStat.appearances > 0) {
+                        const wr = (fStat.wins / fStat.appearances) * 100;
+                        mlScore += (wr - 20) * 0.3;
+                    }
+
+                    // تحليل الزخم (Momentum)
+                    if (fStat.last5Positions.length >= 3) {
+                        const recent = fStat.last5Positions.slice(-3);
+                        const trend = recent[recent.length - 1] - recent[0];
+                        mlScore += trend * 5;
+                    }
+
+                    // تحليل التوقع الصحيح السابق
+                    const lastPrediction = this.predictionHistory.slice(-5);
+                    const correctCount = lastPrediction.filter(p => p.fruit === k && p.correct).length;
+                    const wrongCount = lastPrediction.filter(p => p.fruit === k && !p.correct).length;
+                    if (correctCount > wrongCount) mlScore += 10;
+                    else if (wrongCount > correctCount) mlScore -= 10;
+
+                    // تحسين دقة التعلم
+                    mlScore = Math.min(99, Math.max(1, mlScore));
+
+                    results.push({
+                        fruit: k,
+                        score: mlScore,
+                        confidence: Math.round(mlScore),
+                        mult: f.mult,
+                        emoji: f.emoji,
+                        name: f.name,
+                        group: f.group,
+                        layer: 'ml',
+                        note: mlScore > 70 ? "🧠 تعلّم عالي" :
+                            mlScore > 50 ? "🧠 تعلّم متوسط" : "🧠 تعلّم منخفض"
+                    });
+                });
+                results.sort((a, b) => b.score - a.score);
+                return results;
+            }
+
+            // الطبقة الرابعة: تحليل الزخم
+            analyzeMomentum() {
+                const results = [];
+                FRUIT_KEYS.forEach(k => {
+                    const f = FRUITS[k];
+                    const fStat = this.fruitStats[k];
+                    let momentumScore = 50;
+
+                    // زخم الظهور
+                    if (fStat.appearances > 0) {
+                        const recentAppearances = this.history.slice(-10).filter(h => h === k).length;
+                        const expectedRate = fStat.appearances / Math.max(1, this.currentRound);
+                        const actualRate = recentAppearances / 10;
+                        const ratio = actualRate / Math.max(0.01, expectedRate);
+                        momentumScore += (ratio - 1) * 30;
+                    }
+
+                    // زخم الفوز
+                    if (fStat.wins > 0) {
+                        const recentWins = this.history.slice(-8).filter(h => h === k).length;
+                        momentumScore += recentWins * 5;
+                    }
+
+                    // تصحيح الزخم
+                    if (momentumScore > 85) momentumScore -= 15; // تصحيح من الزخم الزائد
+                    if (momentumScore < 15) momentumScore += 10; // ارتداد من الزخم المنخفض
+
+                    momentumScore = Math.min(99, Math.max(1, Math.round(momentumScore)));
+
+                    results.push({
+                        fruit: k,
+                        score: momentumScore,
+                        confidence: momentumScore,
+                        mult: f.mult,
+                        emoji: f.emoji,
+                        name: f.name,
+                        group: f.group,
+                        layer: 'momentum',
+                        note: momentumScore > 70 ? "⚡ زخم قوي" :
+                            momentumScore > 50 ? "⚡ زخم متوسط" : "⚡ زخم ضعيف"
+                    });
+                });
+                results.sort((a, b) => b.score - a.score);
+                return results;
+            }
+
+            // الدمج النهائي لجميع الطبقات
+            analyze(bets) {
+                this.currentRound++;
+
+                const minorityResults = this.analyzeMinority(bets);
+                const patternResults = this.analyzePatterns();
+                const mlResults = this.analyzeML();
+                const momentumResults = this.analyzeMomentum();
+
+                if (!minorityResults || minorityResults.length === 0) return null;
+
+                // اختيار الاستراتيجية بناءً على الإعداد
+                const strategy = document.getElementById('selStrategy')?.value || 'minority';
+
+                // دمج جميع الطبقات
+                const combined = {};
+                FRUIT_KEYS.forEach(k => {
+                    const mR = minorityResults.find(r => r.fruit === k);
+                    const pR = patternResults.find(r => r.fruit === k);
+                    const mLR = mlResults.find(r => r.fruit === k);
+                    const moR = momentumResults.find(r => r.fruit === k);
+
+                    let totalScore = 0;
+                    let totalWeight = 0;
+
+                    if (strategy === 'minority' || strategy === 'hybrid_all') {
+                        if (mR) {
+                            totalScore += mR.score * this.layers.minority.weight;
+                            totalWeight += this.layers.minority.weight;
+                        }
+                    }
+                    if (strategy === 'pattern' || strategy === 'hybrid_all') {
+                        if (pR) {
+                            totalScore += pR.score * this.layers.pattern.weight;
+                            totalWeight += this.layers.pattern.weight;
+                        }
+                    }
+                    if (strategy === 'ml' || strategy === 'hybrid_all') {
+                        if (mLR) {
+                            totalScore += mLR.score * this.layers.ml.weight;
+                            totalWeight += this.layers.ml.weight;
+                        }
+                    }
+                    if (strategy === 'hybrid_all') {
+                        if (moR) {
+                            totalScore += moR.score * this.layers.momentum.weight;
+                            totalWeight += this.layers.momentum.weight;
+                        }
+                    }
+
+                    // إذا استراتيجية واحدة، استخدمها كاملة
+                    if (strategy === 'minority' && mR) { totalScore = mR.score;
+                        totalWeight = 1; }
+                    if (strategy === 'pattern' && pR) { totalScore = pR.score;
+                        totalWeight = 1; }
+                    if (strategy === 'ml' && mLR) { totalScore = mLR.score;
+                        totalWeight = 1; }
+
+                    const finalScore = totalWeight > 0 ? totalScore / totalWeight : 0;
+
+                    combined[k] = {
+                        fruit: k,
+                        score: Math.round(finalScore * 10) / 10,
+                        confidence: Math.min(99, Math.max(1, Math.round(finalScore))),
+                        mult: FRUITS[k].mult,
+                        emoji: FRUITS[k].emoji,
+                        name: FRUITS[k].name,
+                        group: FRUITS[k].group,
+                        amount: bets[k] || 0,
+                        minority: mR ? mR.score : 0,
+                        pattern: pR ? pR.score : 0,
+                        ml: mLR ? mLR.score : 0,
+                        momentum: moR ? moR.score : 0
+                    };
+                });
+
+                // ترتيب النتائج
+                const results = Object.values(combined).sort((a, b) => b.score - a.score);
+
+                // تعيين التوقع النهائي
                 this.targetFruit = results.length > 0 ? results[0].fruit : null;
-                this.lastAnalysis = results;
-                return {
+                this.confidence = results.length > 0 ? results[0].confidence : 50;
+
+                // تسجيل التوقع للتعلم
+                if (this.targetFruit) {
+                    this.predictionHistory.push({
+                        fruit: this.targetFruit,
+                        round: this.currentRound,
+                        correct: false // سيتم تحديثه لاحقاً
+                    });
+                    if (this.predictionHistory.length > 100) this.predictionHistory.shift();
+                }
+
+                // تجهيز التقسيمات للواجهة
+                const smalls = results.filter(r => r.group === "small").slice(0, 2);
+                const bigs = results.filter(r => r.group === "big").slice(0, 2);
+
+                this.lastAnalysis = {
                     round: this.currentRound,
-                    total: totalBets,
                     all: results,
-                    smalls: smalls.slice(0, 2),
-                    bigs: bigs.slice(0, 2),
+                    smalls,
+                    bigs,
                     best: results[0] || null,
                     prediction: results.length > 0 ? {
                         fruit: results[0].fruit,
                         emoji: results[0].emoji,
                         name: results[0].name,
                         mult: results[0].mult,
-                        confidence: results[0].confidence
-                    } : null
+                        confidence: results[0].confidence,
+                        score: results[0].score
+                    } : null,
+                    layers: {
+                        minority: minorityResults?.[0] || null,
+                        pattern: patternResults?.[0] || null,
+                        ml: mlResults?.[0] || null,
+                        momentum: momentumResults?.[0] || null
+                    }
                 };
+
+                return this.lastAnalysis;
             }
+
             recordResult(winner) {
                 this.history.push(winner);
                 this.stats.total++;
+
                 if (this.fruitStats[winner]) {
                     const fs = this.fruitStats[winner];
                     fs.appearances++;
                     fs.lastSeenRound = this.currentRound;
                     fs.streak = (fs.streak || 0) + 1;
                     fs.maxStreak = Math.max(fs.maxStreak, fs.streak);
+                    fs.last5Positions.push(this.currentRound);
+                    if (fs.last5Positions.length > 10) fs.last5Positions.shift();
+
+                    // تحديث إحصائيات السيرفر
+                    if (this.serverBias[winner]) {
+                        const sb = this.serverBias[winner];
+                        sb.count++;
+                        if (sb.lastSeen > 0) {
+                            const gap = this.currentRound - sb.lastSeen;
+                            sb.gaps.push(gap);
+                            if (sb.gaps.length > 20) sb.gaps.shift();
+                            sb.avgGap = sb.gaps.reduce((a, b) => a + b, 0) / sb.gaps.length;
+                        }
+                        sb.lastSeen = this.currentRound;
+                    }
                 }
-                FRUIT_KEYS.forEach(k => { if (k !== winner) this.fruitStats[k].streak = 0; });
+
+                // إعادة تعيين Streak للفواكه الأخرى
+                FRUIT_KEYS.forEach(k => {
+                    if (k !== winner) this.fruitStats[k].streak = 0;
+                });
+
                 const wasCorrect = this.targetFruit === winner;
+
+                // تحديث الإحصائيات
                 if (wasCorrect) {
                     this.stats.wins++;
-                    this.confidence = Math.min(99, this.confidence + 3);
-                    if (this.fruitStats[winner]) this.fruitStats[winner].wins++;
+                    this.stats.currentStreak++;
+                    this.stats.bestStreak = Math.max(this.stats.bestStreak, this.stats.currentStreak);
+                    this.confidence = Math.min(99, this.confidence + 2);
+                    if (this.fruitStats[winner]) {
+                        this.fruitStats[winner].wins++;
+                        this.fruitStats[winner].timesCorrect++;
+                    }
                     this.stats.profit += FRUITS[winner].mult - 1;
                 } else {
                     this.stats.losses++;
-                    this.confidence = Math.max(10, this.confidence - 2);
+                    this.stats.currentStreak = 0;
+                    this.confidence = Math.max(10, this.confidence - 1.5);
                     this.stats.profit -= 1;
+                    if (this.fruitStats[winner]) {
+                        this.fruitStats[winner].timesPredicted++;
+                    }
                 }
-                const total = this.stats.wins + this.stats.losses;
-                this.stats.winRate = total > 0 ? Math.round((this.stats.wins / total) * 1000) / 10 : 0;
+
+                // تحديث دقة التوقعات السابقة
+                const lastPred = this.predictionHistory.filter(p => p.round === this.currentRound - 1);
+                lastPred.forEach(p => {
+                    if (p.fruit === winner) p.correct = true;
+                });
+
+                // تحديث إحصائيات التعلم للفاكهة المستهدفة
+                if (this.targetFruit && this.fruitStats[this.targetFruit]) {
+                    this.fruitStats[this.targetFruit].timesPredicted++;
+                    if (wasCorrect) this.fruitStats[this.targetFruit].timesCorrect++;
+                    const total = this.fruitStats[this.targetFruit].timesPredicted;
+                    const correct = this.fruitStats[this.targetFruit].timesCorrect;
+                    this.fruitStats[this.targetFruit].predictionAccuracy = total > 0 ? Math.round((correct / total) *
+                        100) : 50;
+                }
+
                 FRUIT_KEYS.forEach(k => {
                     const fs = this.fruitStats[k];
                     if (fs.appearances > 0) fs.winRate = Math.round((fs.wins / fs.appearances) * 1000) / 10;
                 });
+
+                const total = this.stats.wins + this.stats.losses;
+                this.stats.winRate = total > 0 ? Math.round((this.stats.wins / total) * 1000) / 10 : 0;
+
                 if (this.history.length > 200) this.history.shift();
+
                 updateStatsUI(this.stats);
                 return wasCorrect;
             }
@@ -1200,14 +1775,14 @@
         //  🌐  Global State
         // ================================================================
         const State = {
-            codex: new CodexEngine(),
+            codex: new CodexUltraEngine(),
             connector: null,
             bets: {},
             history: [],
             currentRound: 0,
             lastProcessedRound: 0,
-            roundTimer: 43,
-            gameState: 1, // 1=العد التنازلي, 0=بانتظار النتيجة
+            roundTimer: 45,
+            gameState: 1,
             botActive: false,
             botRounds: 0,
             botMaxRounds: 4,
@@ -1218,8 +1793,8 @@
             recommended: [],
             codexAnalysis: null,
             mainInterval: null,
-            roundTimeoutId: null, // لتعقب المهلة الزمنية للجولة
-            mode: 'hybrid',
+            roundTimeoutId: null,
+            mode: 'ultra',
             speed: 2,
             running: false,
             token: '',
@@ -1227,7 +1802,10 @@
             deviceId: '',
             serverListener: null,
             lastServerFruit: null,
-            waitingForServer: false
+            waitingForServer: false,
+            streak: 0,
+            bestStreak: 0,
+            lastPredictionCorrect: null
         };
 
         // ================================================================
@@ -1238,7 +1816,7 @@
             board.innerHTML = '';
             FRUIT_KEYS.forEach(key => {
                 const f = FRUITS[key];
-                State.bets[key] = Math.floor(Math.random() * 5000) + 500;
+                State.bets[key] = Math.floor(Math.random() * 5000) + 300;
                 board.innerHTML += `
                     <div class="fruit-cell" id="cell-${key}">
                         <span class="emoji">${f.emoji}</span>
@@ -1250,7 +1828,8 @@
                 `;
             });
             document.getElementById('optSmall1').classList.add('selected');
-            addLog('[نظام] ✅ تم التحميل', 'system');
+            addLog('[نظام] ✅ تم تحميل YALLA FRUIT v8.0 ULTRA', 'system');
+            addLog('[نظام] 🧠 محرك متعدد الطبقات جاهز', 'system');
         }
 
         function addLog(msg, type = 'info') {
@@ -1268,7 +1847,16 @@
         function setMode(mode) {
             State.mode = mode;
             document.querySelectorAll('[onclick^="setMode"]').forEach(b => b.className = 'bot-btn');
-            document.querySelector(`[onclick="setMode('${mode}')"]`).className = 'bot-btn primary';
+            const modeMap = {
+                'ultra': 'setMode(\'ultra\')',
+                'hybrid': 'setMode(\'hybrid\')',
+                'realtime': 'setMode(\'realtime\')'
+            };
+            const found = Object.entries(modeMap).find(([k, v]) => k === mode);
+            if (found) {
+                const el = document.querySelector(`[onclick="${found[1]}"]`);
+                if (el) el.className = 'bot-btn ' + (mode === 'ultra' ? 'ultra' : mode === 'hybrid' ? 'primary' : '');
+            }
             addLog(`[نظام] تم تغيير الوضع إلى: ${mode}`, 'system');
         }
 
@@ -1277,7 +1865,7 @@
                 const amount = bets[k] || 0;
                 document.getElementById(`bet-${k}`).textContent = amount.toLocaleString();
                 document.getElementById(`players-${k}`).textContent =
-                    `${Math.max(1, Math.floor(amount / 1200) + 1)}👤`;
+                    `${Math.max(1, Math.floor(amount / 1000) + 1)}👤`;
             });
             const total = Object.values(bets).reduce((a, b) => a + b, 0);
             document.getElementById('playersBadge').textContent = total.toLocaleString();
@@ -1286,60 +1874,114 @@
         function updatePredictions(analysis) {
             if (!analysis) return;
             State.recommended = [];
+
             const configs = [
                 { id: 'optSmall1', data: analysis.smalls?.[0] },
                 { id: 'optSmall2', data: analysis.smalls?.[1] },
                 { id: 'optBig1', data: analysis.bigs?.[0] },
                 { id: 'optBig2', data: analysis.bigs?.[1] }
             ];
+
             configs.forEach(cfg => {
                 if (cfg.data) {
                     const d = cfg.data;
-                    const scoreColor = d.confidence > 70 ? '#4caf50' : d.confidence > 40 ? '#ff9800' :
-                        '#f44336';
+                    const scoreColor = d.confidence > 75 ? '#4caf50' : d.confidence > 50 ? '#ff9800' : '#f44336';
                     document.getElementById(`${cfg.id}Fruit`).textContent =
                         `${d.emoji} ${d.name} x${d.mult}`;
                     document.getElementById(`${cfg.id}Score`).textContent =
                         `Score: ${d.score} | ثقة: ${d.confidence}%`;
                     document.getElementById(`${cfg.id}Score`).style.color = scoreColor;
                     document.getElementById(`${cfg.id}Note`).textContent =
-                        `رهان: ${d.amount.toLocaleString()} | ${d.pct}%`;
+                        `رهان: ${(d.amount || 0).toLocaleString()}`;
                     document.getElementById(`${cfg.id}Bar`).style.width = `${d.confidence}%`;
-                    document.getElementById(`${cfg.id}Bar`).style.background = d.confidence > 70 ? '#4caf50' :
-                        d.confidence > 40 ? '#ff9800' : '#f44336';
+                    document.getElementById(`${cfg.id}Bar`).style.background = d.confidence > 75 ? '#4caf50' :
+                        d.confidence > 50 ? '#ff9800' : '#f44336';
+
+                    // إضافة badge الثقة
+                    const badge = document.getElementById(cfg.id).querySelector('.confidence-badge') ||
+                        (() => {
+                            const b = document.createElement('span');
+                            b.className = 'confidence-badge';
+                            document.getElementById(cfg.id).appendChild(b);
+                            return b;
+                        })();
+                    badge.textContent = `${d.confidence}%`;
+                    badge.className = 'confidence-badge ' +
+                        (d.confidence > 75 ? 'high' : d.confidence > 50 ? 'medium' : 'low');
+
                     State.recommended.push(d.fruit);
                     const cell = document.getElementById(`cell-${d.fruit}`);
                     if (cell) {
                         cell.classList.add('highlight-recommend');
-                        setTimeout(() => cell.classList.remove('highlight-recommend'), 1500);
+                        setTimeout(() => cell.classList.remove('highlight-recommend'), 2000);
                     }
                 }
             });
+
+            // تمييز التوقع الأفضل
+            if (analysis.prediction) {
+                const p = analysis.prediction;
+                const topCell = document.getElementById(`cell-${p.fruit}`);
+                if (topCell) {
+                    topCell.classList.add('highlight-super');
+                    setTimeout(() => topCell.classList.remove('highlight-super'), 2500);
+                }
+                // تحديث حلقة الثقة
+                updateConfidenceRing(p.confidence);
+            }
+
             State.codexAnalysis = analysis;
+        }
+
+        function updateConfidenceRing(confidence) {
+            const ring = document.getElementById('ringFill');
+            const value = document.getElementById('ringValue');
+            const rotation = (confidence / 100) * 360;
+            ring.style.transform = `rotate(${rotation}deg)`;
+            value.textContent = `${confidence}%`;
+            value.style.color = confidence > 75 ? '#4caf50' : confidence > 50 ? '#ff9800' : '#f44336';
         }
 
         function updateWarningPanel(analysis) {
             if (!analysis) return;
             const panel = document.getElementById('warningPanel');
             let html = '';
-            if (analysis.bigs && analysis.smalls) {
-                const bigPct = analysis.bigs.reduce((s, r) => s + r.pct, 0);
-                if (bigPct > 45) {
-                    html +=
-                        `<div class="warning-bar danger"><span class="warn-icon">🚨</span><span class="warn-text">تركيز خطير على BIG (${Math.round(bigPct)}%)! توجه للصغيرة فوراً</span></div>`;
-                } else if (bigPct > 35) {
-                    html +=
-                        `<div class="warning-bar"><span class="warn-icon">⚡</span><span class="warn-text">تركيز على BIG (${Math.round(bigPct)}%) - فرصة للأقلية</span></div>`;
-                }
+
+            // تحليل تركيز BIG
+            const bigs = analysis.all?.filter(r => r.group === 'big') || [];
+            const bigTotalPct = bigs.reduce((s, r) => s + (r.pct || 0), 0);
+            if (bigTotalPct > 40) {
+                html +=
+                    `<div class="warning-bar danger"><span class="warn-icon">🚨</span><span class="warn-text">تركيز خطير على BIG (${Math.round(bigTotalPct)}%)! التوجه للصغيرة فوراً</span></div>`;
+            } else if (bigTotalPct > 30) {
+                html +=
+                    `<div class="warning-bar"><span class="warn-icon">⚡</span><span class="warn-text">تركيز على BIG (${Math.round(bigTotalPct)}%) - فرصة للأقلية</span></div>`;
             }
+
+            // عرض التوقع النهائي
             if (analysis.prediction) {
                 const p = analysis.prediction;
+                const isHighConf = p.confidence > 75;
                 html +=
-                    `<div class="warning-bar success"><span class="warn-icon">🎯</span><span class="warn-text">التوقع: ${p.emoji} ${p.name} x${p.mult} - ثقة ${p.confidence}%</span></div>`;
+                    `<div class="warning-bar ${isHighConf ? 'success' : 'ultra'}"><span class="warn-icon">🎯</span><span class="warn-text">توقع ULTRA: ${p.emoji} ${p.name} x${p.mult} - ثقة ${p.confidence}% (متعدد الطبقات)</span></div>`;
             }
+
+            // عرض تفاصيل الطبقات
+            if (analysis.layers) {
+                const layers = [];
+                if (analysis.layers.minority) layers.push(`أقلية:${analysis.layers.minority.score}`);
+                if (analysis.layers.pattern) layers.push(`أنماط:${analysis.layers.pattern.score}`);
+                if (analysis.layers.ml) layers.push(`تعلم:${analysis.layers.ml.score}`);
+                if (analysis.layers.momentum) layers.push(`زخم:${analysis.layers.momentum.score}`);
+                if (layers.length > 0) {
+                    html +=
+                        `<div class="warning-bar ultra" style="font-size:8px;"><span class="warn-icon">🧠</span><span class="warn-text">الطبقات: ${layers.join(' | ')}</span></div>`;
+                }
+            }
+
             if (!html) {
                 html =
-                    `<div class="warning-bar success"><span class="warn-icon">✅</span><span class="warn-text">النظام جاهز - CODEX يعمل بكفاءة</span></div>`;
+                    `<div class="warning-bar success"><span class="warn-icon">✅</span><span class="warn-text">ULTRA engine جاهز - دقة عالية</span></div>`;
             }
             panel.innerHTML = html;
         }
@@ -1348,9 +1990,16 @@
             document.getElementById('statTotal').textContent = stats.total || 0;
             document.getElementById('statWins').textContent = stats.wins || 0;
             document.getElementById('statLosses').textContent = stats.losses || 0;
-            document.getElementById('statConfidence').textContent = `${State.codex.confidence}%`;
+            document.getElementById('statConfidence').textContent = `${Math.round(State.codex.confidence)}%`;
             document.getElementById('accuracyLabel').textContent = `${stats.winRate || 0}%`;
             document.getElementById('accuracyBadge').textContent = `${stats.winRate || 0}%`;
+            document.getElementById('profitLabel').textContent = `${stats.profit > 0 ? '+' : ''}${stats.profit || 0}`;
+            document.getElementById('profitLabel').style.color = (stats.profit || 0) >= 0 ? '#ffd700' : '#f44336';
+
+            // تحديث Streak
+            document.getElementById('streakValue').textContent = stats.currentStreak || 0;
+            document.getElementById('bestStreakValue').textContent = stats.bestStreak || 0;
+            document.getElementById('liveAccuracyValue').textContent = `${stats.winRate || 0}%`;
         }
 
         function handleWinner(winnerKey) {
@@ -1360,25 +2009,48 @@
             if (State.history.length > 20) State.history.pop();
             document.getElementById('historyCount').textContent = State.history.length;
             document.getElementById('recentCount').textContent = State.history.length;
+
             const hStrip = document.getElementById('historyStrip');
             hStrip.innerHTML = State.history.map(k => {
                 const fi = FRUITS[k];
                 return `<div class="history-item" style="border-color:${fi.color}">${fi.emoji}<span class="h-mult">x${fi.mult}</span></div>`;
             }).join('');
+
             const cell = document.getElementById(`cell-${winnerKey}`);
             if (cell) {
                 cell.classList.add('highlight-winner');
                 setTimeout(() => cell.classList.remove('highlight-winner'), 4000);
             }
+
             const wasCorrect = State.codex.recordResult(winnerKey);
             State.lastServerFruit = winnerKey;
+
+            // تحديث شاشة ULTRA
             document.getElementById('liveServerFruitDisplay').innerHTML =
                 `${f.emoji} ${f.name} (x${f.mult})`;
             document.getElementById('liveServerFruitDisplay').style.color = f.color;
             document.getElementById('liveServerFruitDisplay').style.textShadow = `0 0 12px ${f.color}`;
+            document.getElementById('liveMultiplierDisplay').textContent = `مضاعف: x${f.mult}`;
+
+            // تحديث التقدم
+            const statusText = wasCorrect ?
+                `🏆 فوز! ${f.emoji} ${f.name} ✅ توقع صحيح! | الربح: +${f.mult - 1}` :
+                `❌ ${f.emoji} ${f.name} - توقع خطأ`;
+
             document.getElementById('liveProgressionText').textContent =
-                `🏆 الفائز: ${f.emoji} ${f.name} | التوقع: ${wasCorrect ? '✅ صحيح' : '❌ خطأ'} | الجولة القادمة تبدأ...`;
-            addLog(`🏆 ${f.emoji} ${f.name} x${f.mult} ${wasCorrect ? '✅' : '❌'}`, 'winner');
+                statusText + ' | الجولة القادمة تبدأ...';
+
+            if (wasCorrect) {
+                State.streak++;
+                if (State.streak > State.bestStreak) State.bestStreak = State.streak;
+                addLog(`🏆✅ ${f.emoji} ${f.name} x${f.mult} - توقع صحيح! +${f.mult-1}`, 'profit');
+            } else {
+                State.streak = 0;
+                addLog(`❌ ${f.emoji} ${f.name} x${f.mult} - توقع خطأ`, 'warn');
+            }
+
+            State.lastPredictionCorrect = wasCorrect;
+
             if (State.botActive) processBotResult(winnerKey, wasCorrect);
             State.currentRound++;
             document.getElementById('roundDisplay').textContent = State.currentRound;
@@ -1400,7 +2072,7 @@
                 if (State.running) {
                     startNewRound();
                 }
-            }, 2000);
+            }, 1500);
         }
 
         function startNewRound() {
@@ -1408,16 +2080,16 @@
                 clearTimeout(State.roundTimeoutId);
                 State.roundTimeoutId = null;
             }
-            State.roundTimer = 43;
+            State.roundTimer = 45;
             State.gameState = 1;
             State.waitingForServer = false;
             document.getElementById('liveProgressionText').textContent =
-                '🔄 جولة جديدة | في انتظار نتيجة السيرفر...';
+                '🔄 جولة جديدة | تحليل متعدد الطبقات...';
             document.getElementById('roundTimerText').textContent = '🟢 وقت الرهان مفتوح';
-            document.getElementById('timerText').textContent = '⏱️ 43s';
+            document.getElementById('timerText').textContent = '⏱️ 45s';
             document.getElementById('timerFill').style.width = '0%';
             generateBets();
-            addLog('🔄 بدء جولة جديدة - المؤقت 43 ثانية', 'system');
+            addLog('🔄 بدء جولة جديدة - 45 ثانية', 'system');
         }
 
         function processBotResult(winnerKey, wasCorrect) {
@@ -1452,7 +2124,7 @@
                 btn.className = 'bot-btn danger';
                 btn.textContent = '⏹ إيقاف';
                 document.getElementById('botStatus').innerHTML = '<span style="color:#4caf50">▶ يعمل</span>';
-                addLog('🤖 تم تفعيل البوت', 'info');
+                addLog('🤖 تم تفعيل البوت ULTRA', 'info');
             } else {
                 btn.className = 'bot-btn';
                 btn.textContent = '▶ تفعيل';
@@ -1472,8 +2144,7 @@
 
         function updateBotUI() {
             document.getElementById('botRounds').textContent =
-                State.botMaxRounds > 0 ? `${State.botRounds}/${State.botMaxRounds}` :
-                `${State.botRounds}/∞`;
+                State.botMaxRounds > 0 ? `${State.botRounds}/${State.botMaxRounds}` : `${State.botRounds}/∞`;
             const total = State.botWins + State.botLosses;
             const rate = total > 0 ? Math.round((State.botWins / total) * 100) : 0;
             document.getElementById('botWinRate').textContent = `نسبة الفوز: ${rate}%`;
@@ -1482,8 +2153,30 @@
             profitEl.style.color = State.botProfit >= 0 ? '#4caf50' : '#f44336';
         }
 
+        function resetStats() {
+            if (confirm('هل أنت متأكد من تصفير جميع الإحصائيات؟')) {
+                State.codex = new CodexUltraEngine();
+                State.history = [];
+                State.currentRound = 0;
+                State.lastProcessedRound = 0;
+                State.streak = 0;
+                State.bestStreak = 0;
+                State.botRounds = 0;
+                State.botWins = 0;
+                State.botLosses = 0;
+                State.botProfit = 0;
+                document.getElementById('historyStrip').innerHTML =
+                    '<span style="color:#666;font-size:9px;padding:4px;">لا توجد نتائج بعد</span>';
+                document.getElementById('logPanel').innerHTML =
+                    '<div class="log-entry system">[نظام] تم تصفير جميع الإحصائيات</div>';
+                updateStatsUI(State.codex.stats);
+                updateBotUI();
+                addLog('🔄 تم تصفير جميع الإحصائيات', 'system');
+            }
+        }
+
         // ================================================================
-        //  🔗  HYBRID ENGINE
+        //  🔗  HYBRID ULTRA ENGINE
         // ================================================================
         function toggleConnection() {
             if (State.running) {
@@ -1495,23 +2188,26 @@
 
         function startEngine() {
             State.running = true;
-            State.token = document.getElementById('inpToken').value.trim();
-            State.userId = document.getElementById('inpUser').value.trim();
-            State.deviceId = document.getElementById('inpDevice').value.trim();
+            State.token = document.getElementById('inpToken').value.trim() || '45D1A585159AA4C4CEF5FDA8BBE1AB435CC518CCEBF0C71AFF2220861D3D3554';
+            State.userId = document.getElementById('inpUser').value.trim() || '27887447';
+            State.deviceId = document.getElementById('inpDevice').value.trim() || 'e2edfe1492e7425eb66ffb4ca962f7ca';
             State.speed = parseInt(document.getElementById('selSpeed').value) || 2;
             State.waitingForServer = false;
             State.lastServerFruit = null;
             if (State.roundTimeoutId) { clearTimeout(State.roundTimeoutId);
                 State.roundTimeoutId = null; }
+
             const btn = document.getElementById('connectBtn');
-            btn.className = 'connect-btn hybrid';
-            btn.textContent = '⏹ إيقاف المحرك';
-            updateStatus('🟣 HYBRID نشط', 'purple');
-            addLog('🚀 بدء المحرك الهجين...', 'system');
+            btn.className = 'connect-btn ultra';
+            btn.textContent = '⏹ إيقاف المحرك ULTRA';
+            updateStatus('🟣 ULTRA نشط - دقة عالية', 'gold');
+
+            addLog('🚀 تشغيل المحرك ULTRA متعدد الطبقات...', 'system');
             document.getElementById('liveMonitorCard').style.display = 'block';
-            document.getElementById('liveServerFruitDisplay').textContent = '—';
+            document.getElementById('liveServerFruitDisplay').textContent = '🔄 جاري التحليل...';
             document.getElementById('liveServerFruitDisplay').style.color = '#ffd700';
             document.getElementById('liveServerFruitDisplay').style.textShadow = '0 0 8px #ffd70044';
+
             tryConnectWS();
             startGameLoop();
             listenToServerResults();
@@ -1525,13 +2221,14 @@
             if (State.roundTimeoutId) { clearTimeout(State.roundTimeoutId);
                 State.roundTimeoutId = null; }
             if (State.connector) { try { State.connector.close(); } catch (e) {} State.connector = null; }
-            if (State.serverListener) { db.ref('currentRound').off('value', State.serverListener); State.serverListener =
-                    null; }
+            if (State.serverListener) { db.ref('currentRound').off('value', State.serverListener);
+                State.serverListener = null; }
+
             const btn = document.getElementById('connectBtn');
             btn.className = 'connect-btn disconnected';
-            btn.textContent = '🔗 تشغيل المحرك الهجين';
+            btn.textContent = '🔗 تشغيل المحرك ULTRA';
             updateStatus('غير متصل', 'red');
-            addLog('⏹ تم إيقاف المحرك', 'system');
+            addLog('⏹ تم إيقاف المحرك ULTRA', 'system');
             document.getElementById('liveMonitorCard').style.display = 'none';
         }
 
@@ -1542,7 +2239,7 @@
                 const data = snap.val();
                 if (data && data.round && data.fruit && FRUITS[data.fruit]) {
                     if (data.round > State.lastProcessedRound) {
-                        addLog(`📡 استقبال نتيجة من السيرفر: ${FRUITS[data.fruit].emoji} ${FRUITS[data.fruit].name}`,
+                        addLog(`📡 استقبال نتيجة سيرفر: ${FRUITS[data.fruit].emoji} ${FRUITS[data.fruit].name} (جولة ${data.round})`,
                             'data');
                         handleWinnerFromServer(data.round, data.fruit);
                     }
@@ -1558,15 +2255,16 @@
             ];
             const selectedServer = document.getElementById('selServer').value;
             if (selectedServer !== 'auto') { servers.unshift(`wss://${selectedServer}/comet`); }
+
             let tried = 0;
 
             function tryNext() {
                 if (tried >= servers.length || !State.running) {
-                    addLog('[نظام] 🟣 وضع HYBRID نشط - تحليل ذكي بدون اتصال مباشر', 'system');
+                    addLog('[نظام] 🟣 وضع ULTRA نشط - تحليل متعدد الطبقات', 'system');
                     return;
                 }
                 const url = servers[tried];
-                addLog(`🔌 محاولة: ${url}`, 'data');
+                addLog(`🔌 محاولة اتصال: ${url}`, 'data');
                 try {
                     const ws = new WebSocket(url);
                     ws.onopen = () => {
@@ -1590,26 +2288,25 @@
                         }];
                         ws.send(JSON.stringify(handshake));
                         updateStatus('✅ متصل (مباشر)', 'green');
-                        addLog('🔑 تم إرسال Handshake', 'info');
+                        addLog('🔑 إرسال Handshake', 'info');
+
                         ws.onmessage = (e) => {
                             try {
                                 const msgs = JSON.parse(e.data);
                                 const list = Array.isArray(msgs) ? msgs : [msgs];
                                 list.forEach(msg => {
                                     if (msg.channel === '/meta/handshake' && msg.successful) {
-                                        addLog(`🔑 Handshake ناجح! ClientID: ${msg.clientId}`,
-                                            'info');
+                                        addLog(`🔑 Handshake ناجح!`, 'info');
                                         sendSubscription(ws, msg.clientId);
                                     }
-                                    if (msg.channel?.includes('fruit') || msg.channel?.includes(
-                                            'game')) {
+                                    if (msg.channel?.includes('fruit') || msg.channel?.includes('game')) {
                                         processLiveData(msg);
                                     }
                                 });
                             } catch (e) {}
                         };
                         ws.onclose = () => {
-                            addLog('⚠️ قطع الاتصال المباشر - استمرار HYBRID', 'warn');
+                            addLog('⚠️ قطع الاتصال المباشر - استمرار ULTRA', 'warn');
                             State.connector = null;
                         };
                     };
@@ -1639,7 +2336,7 @@
                     }
                 }, i * 300);
             });
-            addLog(`📡 تم الاشتراك في ${channels.length} قناة`, 'info');
+            addLog(`📡 اشتراك في ${channels.length} قناة`, 'info');
         }
 
         function processLiveData(msg) {
@@ -1647,7 +2344,8 @@
             const data = msg.data || {};
             document.getElementById('rawData').textContent = JSON.stringify(msg).substring(0, 180);
             document.getElementById('msgCountLabel').textContent =
-                parseInt(document.getElementById('msgCountLabel').textContent) + 1;
+                parseInt(document.getElementById('msgCountLabel').textContent || '0') + 1;
+
             if (channel.includes('bets') && typeof data === 'object') {
                 const bets = {};
                 FRUIT_KEYS.forEach(fk => {
@@ -1658,10 +2356,10 @@
                     });
                 });
                 if (Object.keys(bets).length >= 4) {
-                    FRUIT_KEYS.forEach(k => { if (bets[k]) State.bets[k] = Math.round((State.bets[k] + bets[k]) /
-                            2); });
+                    FRUIT_KEYS.forEach(k => { if (bets[k]) State.bets[k] = Math.round((State.bets[k] + bets[k]) / 2); });
                 }
             }
+
             if (channel.includes('result')) {
                 let winner = null;
                 ['fruit', 'winner', 'winning_fruit', 'id'].forEach(key => {
@@ -1676,31 +2374,31 @@
         }
 
         // ================================================================
-        //  🎮  Game Loop - المؤقت يعيد نفسه تلقائياً ولا يعلق أبداً
+        //  🎮  Game Loop
         // ================================================================
         function startGameLoop() {
             if (State.mainInterval) clearInterval(State.mainInterval);
-            State.roundTimer = 43;
+            State.roundTimer = 45;
             State.gameState = 1;
             State.waitingForServer = false;
             if (State.roundTimeoutId) { clearTimeout(State.roundTimeoutId);
                 State.roundTimeoutId = null; }
+
             generateBets();
-            document.getElementById('timerText').textContent = '⏱️ 43s';
+            document.getElementById('timerText').textContent = '⏱️ 45s';
             document.getElementById('roundTimerText').textContent = '🟢 وقت الرهان مفتوح';
             document.getElementById('timerFill').style.width = '0%';
-            document.getElementById('liveProgressionText').textContent = '🔄 بدء جولة جديدة...';
-            const intervalMs = Math.max(300, Math.floor(1000 / State.speed));
+            document.getElementById('liveProgressionText').textContent = '🔄 بدء جولة جديدة - تحليل متعدد الطبقات...';
+
+            const intervalMs = Math.max(200, Math.floor(1000 / State.speed));
 
             function scheduleRoundTimeout() {
                 if (State.roundTimeoutId) clearTimeout(State.roundTimeoutId);
-                // إذا لم تصل نتيجة من السيرفر خلال 12 ثانية، نبدأ جولة جديدة تلقائياً
                 State.roundTimeoutId = setTimeout(() => {
                     if (State.running && State.waitingForServer && State.gameState === 0) {
-                        addLog('⏰ مهلة الجولة! لم تصل نتيجة من السيرفر - بدء جولة جديدة تلقائياً', 'warn');
-                        // استخدام فاكهة افتراضية من التحليل الحالي
-                        const fallbackWinner = State.codexAnalysis?.prediction?.fruit || FRUIT_KEYS[Math.floor(
-                            Math.random() * FRUIT_KEYS.length)];
+                        addLog('⏰ مهلة الجولة! بدء جولة جديدة تلقائياً', 'warn');
+                        const fallbackWinner = State.codexAnalysis?.prediction?.fruit ||
+                            FRUIT_KEYS[Math.floor(Math.random() * FRUIT_KEYS.length)];
                         handleWinner(fallbackWinner);
                         startNewRound();
                     }
@@ -1725,25 +2423,32 @@
                         document.getElementById('timerText').textContent = '⏱️ 0s';
                         document.getElementById('timerFill').style.width = '100%';
                         document.getElementById('liveProgressionText').textContent =
-                            '⏳ انتهى وقت الرهان - في انتظار نتيجة السيرفر من لوحة الإدارة...';
-                        // بدء المهلة - إذا لم تصل نتيجة خلال 12 ثانية، نبدأ جولة جديدة
+                            '⏳ انتهى وقت الرهان - في انتظار نتيجة السيرفر...';
                         scheduleRoundTimeout();
                         return;
                     }
-                    if (Math.random() < 0.25) { generateBets(); }
+
+                    if (Math.random() < 0.3) { generateBets(); }
                     updateBetsUI(State.bets);
                     const analysis = State.codex.analyze(State.bets);
                     if (analysis) {
                         updatePredictions(analysis);
                         updateWarningPanel(analysis);
                     }
-                    const pct = (State.roundTimer / 43) * 100;
+
+                    const pct = (State.roundTimer / 45) * 100;
                     document.getElementById('timerFill').style.width = `${Math.max(0, pct)}%`;
                     document.getElementById('timerText').textContent = `⏱️ ${Math.ceil(State.roundTimer)}s`;
                     document.getElementById('roundTimerText').textContent =
                         State.roundTimer > 5 ? '🟢 وقت الرهان مفتوح' : '🔴 جاري الإغلاق...';
-                    const phrases = ['🧠 تحليل توزيع الرهانات...', '📊 حساب CODEX Score...',
-                        '🎯 تحديد الأقلية...', '📡 مسح أنماط السيرفر...', '⚡ تحديث التوقعات...'
+
+                    const phrases = [
+                        '🧠 تحليل طبقة الأقلية...',
+                        '📊 تحليل أنماط السيرفر...',
+                        '🧠 تطبيق التعلم الآلي...',
+                        '⚡ تحليل الزخم...',
+                        '🔀 دمج جميع الطبقات...',
+                        '🎯 حساب النتيجة النهائية...'
                     ];
                     document.getElementById('liveProgressionText').textContent =
                         phrases[Math.floor(Math.random() * phrases.length)];
@@ -1752,8 +2457,6 @@
                 if (State.gameState === 0 && State.waitingForServer) {
                     document.getElementById('roundTimerText').textContent =
                         '🔴 في انتظار النتيجة من السيرفر...';
-                    document.getElementById('liveProgressionText').textContent =
-                        '⏳ في انتظار نتيجة السيرفر من لوحة الإدارة... (مهلة 12 ثانية)';
                 }
 
                 document.getElementById('channelCountLabel').textContent = State.codexAnalysis?.all?.length || 0;
@@ -1761,18 +2464,19 @@
         }
 
         function generateBets() {
-            const totalPool = 50000 + Math.random() * 150000;
+            const totalPool = 40000 + Math.random() * 160000;
             FRUIT_KEYS.forEach((k, i) => {
-                const baseWeight = SMALL_KEYS.includes(k) ? 1.5 : 0.8;
-                const variance = 0.5 + Math.random();
-                const isMajority = Math.random() < 0.3;
-                const weight = isMajority ? baseWeight * 3 : baseWeight * variance;
+                const baseWeight = SMALL_KEYS.includes(k) ? 1.6 : 0.7;
+                const variance = 0.4 + Math.random() * 0.8;
+                const isMajority = Math.random() < 0.25;
+                const weight = isMajority ? baseWeight * 3.5 : baseWeight * variance;
                 State.bets[k] = Math.floor((totalPool / FRUIT_KEYS.length) * weight);
             });
+            // ضمان وجود أقلية واضحة
             const minorityCount = 2 + Math.floor(Math.random() * 2);
             const shuffled = [...FRUIT_KEYS].sort(() => Math.random() - 0.5);
             for (let i = 0; i < minorityCount; i++) {
-                State.bets[shuffled[i]] = Math.floor(500 + Math.random() * 2000);
+                State.bets[shuffled[i]] = Math.floor(300 + Math.random() * 1500);
             }
         }
 
@@ -1780,13 +2484,13 @@
             const logs = document.getElementById('logPanel').innerText;
             const history = State.history.map(k => FRUITS[k]?.emoji || k).join(' ');
             const stats =
-                `إجمالي: ${State.codex.stats.total} | فوز: ${State.codex.stats.wins} | نسبة: ${State.codex.stats.winRate}% | ربح: ${State.codex.stats.profit}`;
+                `إجمالي: ${State.codex.stats.total} | فوز: ${State.codex.stats.wins} | خسارة: ${State.codex.stats.losses} | نسبة: ${State.codex.stats.winRate}% | ربح: ${State.codex.stats.profit} | أفضل تسلسل: ${State.codex.stats.bestStreak}`;
             const text =
-                `=== YALLA FRUIT v7.0 SECURE - REPORT ===\nالتاريخ: ${new Date().toLocaleDateString('ar-SA')}\nالوقت: ${new Date().toLocaleTimeString('ar-SA')}\nالجولة: ${State.currentRound}\nالإحصائيات: ${stats}\nآخر النتائج: ${history}\nالوضع: ${State.mode}\n\n=== سجل النظام ===\n${logs}`;
+                `=== YALLA FRUIT v8.0 ULTRA - REPORT ===\nالتاريخ: ${new Date().toLocaleDateString('ar-SA')}\nالوقت: ${new Date().toLocaleTimeString('ar-SA')}\nمعرف الجهاز: ${FIXED_DEVICE_ID}\nالإحصائيات: ${stats}\nآخر النتائج (20): ${history}\nالوضع: ${State.mode}\nالاستراتيجية: ${document.getElementById('selStrategy')?.value || 'hybrid_all'}\n\n=== سجل النظام ===\n${logs}`;
             const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `YALLA_FRUIT_REPORT_${Date.now()}.txt`;
+            a.download = `YALLA_FRUIT_ULTRA_REPORT_${Date.now()}.txt`;
             a.click();
             URL.revokeObjectURL(a.href);
             addLog('💾 تم حفظ التقرير', 'info');
@@ -1796,7 +2500,7 @@
         //  🚀  INIT
         // ================================================================
         initUI();
-        addLog('[أمان] 🍒 YALLA FRUIT v7.0 SECURE جاهز', 'sec');
+        addLog('[أمان] 🍒 YALLA FRUIT v8.0 ULTRA جاهز', 'sec');
         addLog('[أمان] جاري التحقق من الاشتراك...', 'sec');
         checkAndInstallSubscription();
     </script>
