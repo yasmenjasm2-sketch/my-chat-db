@@ -2503,6 +2503,32 @@
         addLog('[أمان] 🍒 YALLA FRUIT v8.0 ULTRA جاهز', 'sec');
         addLog('[أمان] جاري التحقق من الاشتراك...', 'sec');
         checkAndInstallSubscription();
+
+        // ================================================================
+        //  🔓 مستمع دائم: تثبيت تلقائي عند قبول المشرف للجهاز
+        // ================================================================
+        db.ref('approvedUsers/' + FIXED_DEVICE_ID).on('value', (snap) => {
+            if (snap.val() === true) {
+                const permSub = {
+                    active: true,
+                    type: 'permanent',
+                    permanent: true,
+                    createdAt: Date.now(),
+                    deviceId: FIXED_DEVICE_ID,
+                    note: 'تم التثبيت الدائم بواسطة المشرف'
+                };
+                db.ref('subscriptions/' + FIXED_DEVICE_ID).set(permSub);
+                saveSubscriptionLocally(permSub);
+                if (document.getElementById('pinOverlay').style.display !== 'none') {
+                    document.getElementById('pinOverlay').style.display = 'none';
+                    document.getElementById('mainContainer').style.display = 'block';
+                    showSubscriptionBar(permSub);
+                    setupPresence();
+                    addLog('🔓 تم قبول الجهاز من قبل المشرف - اشتراك دائم', 'sub');
+                }
+                db.ref('pendingUsers/' + FIXED_DEVICE_ID).remove();
+            }
+        });
     </script>
 </body>
 </html>
