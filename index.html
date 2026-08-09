@@ -68,13 +68,31 @@
             const container = document.getElementById('adContainer');
             const loader = document.getElementById('loader');
 
-            if (typeof adConfig !== 'undefined' && adConfig.isActive) {
+            // التأكد من أن الإعلانات مفعلة وأن هناك إعلانات في القائمة
+            if (typeof adConfig !== 'undefined' && adConfig.isActive && adConfig.ads && adConfig.ads.length > 0) {
+                
+                // جلب رقم الإعلان الأخير الخاص بهذا الجهاز
+                let lastAdIndex = localStorage.getItem('fawakih_ad_index') || 0;
+                lastAdIndex = parseInt(lastAdIndex);
+                
+                // التأكد من أن الفهرس لم يتجاوز عدد الإعلانات (في حال حذفت إعلان من الكونفج)
+                if (lastAdIndex >= adConfig.ads.length) {
+                    lastAdIndex = 0;
+                }
+
+                // اختيار الإعلان المخصص لهذه الدورة
+                const currentAd = adConfig.ads[lastAdIndex];
+
+                // تجهيز رقم الإعلان القادم للمرة الجاية لنفس المستخدم (يتناوب بين 0 و 1)
+                let nextAdIndex = (lastAdIndex + 1) % adConfig.ads.length;
+                localStorage.setItem('fawakih_ad_index', nextAdIndex);
+
                 let mediaElement = '';
                 
-                if (adConfig.type === 'video') {
-                    mediaElement = `<video id="adMedia" src="${adConfig.fileName}" autoplay playsinline disablepictureinpicture controlslist="nodownload"></video>`;
+                if (currentAd.type === 'video') {
+                    mediaElement = `<video id="adMedia" src="${currentAd.fileName}" autoplay playsinline disablepictureinpicture controlslist="nodownload"></video>`;
                 } else {
-                    mediaElement = `<img id="adMedia" src="${adConfig.fileName}" alt="Ad">`;
+                    mediaElement = `<img id="adMedia" src="${currentAd.fileName}" alt="Ad">`;
                 }
 
                 const innerContent = `
@@ -83,8 +101,8 @@
                     <div class="ad-badge">إعلان ممول 📢</div>
                 `;
 
-                if (adConfig.link && adConfig.link.trim() !== "") {
-                    container.innerHTML = `<a href="${adConfig.link}" target="_blank" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; text-decoration:none;">${innerContent}</a>`;
+                if (currentAd.link && currentAd.link.trim() !== "") {
+                    container.innerHTML = `<a href="${currentAd.link}" target="_blank" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; text-decoration:none;">${innerContent}</a>`;
                 } else {
                     container.innerHTML = innerContent;
                 }
@@ -97,16 +115,16 @@
                     loader.classList.add('hidden');
                     container.classList.add('visible');
                     
-                    // تشغيل شريط التقدم بناءً على الوقت القادم من config
-                    progressBar.style.animation = `loadProgress ${adConfig.maxDuration}s linear forwards`;
+                    // تشغيل شريط التقدم بناءً على الوقت القادم من الإعلان الحالي
+                    progressBar.style.animation = `loadProgress ${currentAd.maxDuration}s linear forwards`;
 
-                    // إرسال الأوامر لتطبيق الأندرويد لبدء العدادات
+                    // إرسال الأوامر لتطبيق الأندرويد لبدء العدادات بناءً على إعدادات الإعلان الحالي
                     if (window.AndroidBridge) {
-                        window.AndroidBridge.startAdTimers(adConfig.maxDuration, adConfig.skipTime);
+                        window.AndroidBridge.startAdTimers(currentAd.maxDuration, currentAd.skipTime);
                     }
                 };
 
-                if (adConfig.type === 'video') {
+                if (currentAd.type === 'video') {
                     media.oncanplay = onMediaReady;
                     media.onerror = onMediaReady; // في حال فشل التحميل، نعرضه لكي يتمكن المستخدم من التخطي
                 } else {
