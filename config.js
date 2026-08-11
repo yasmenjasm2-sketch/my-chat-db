@@ -12,9 +12,9 @@ const adConfig = {
         {
             // الإعلان الأول
             type: "video",
-            fileName: "hmhm.mp4",
+            fileName: "fawakih.mp4",
             link: "https://wsend.co/905424678123",
-            maxDuration: 22, // مدة الإعلان الكلية
+            maxDuration: 11, // مدة الإعلان الكلية
             skipTime: 7     // يظهر زر التخطي بعد
         },
         {
