@@ -13,7 +13,7 @@ const adConfig = {
             // الإعلان الأول
             type: "video",
             fileName: "fawakih.mp4",
-            link: "https://wsend.co/905424678123",
+            link: "https://vt.tiktok.com/ZSqPVfTQC/",
             maxDuration: 11, // مدة الإعلان الكلية
             skipTime: 7     // يظهر زر التخطي بعد
         },
