@@ -68,8 +68,32 @@
             const container = document.getElementById('adContainer');
             const loader = document.getElementById('loader');
 
-            // التأكد من أن الإعلانات مفعلة وأن هناك إعلانات في القائمة
-            if (typeof adConfig !== 'undefined' && adConfig.isActive && adConfig.ads && adConfig.ads.length > 0) {
+            // --- التعديل: المعرف المستثنى من عرض الإعلانات ---
+            const vipDeviceId = "194ef9596b123ec8";
+            let isVipUser = false;
+
+            try {
+                // 1. محاولة جلب المعرف من الرابط (مثال: index.html?id=194ef9596b123ec8)
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('id') === vipDeviceId || urlParams.get('deviceId') === vipDeviceId) isVipUser = true;
+                
+                // 2. محاولة جلب المعرف من التخزين المحلي للمتصفح
+                if (localStorage.getItem('deviceId') === vipDeviceId || localStorage.getItem('id') === vipDeviceId) isVipUser = true;
+                
+                // 3. محاولة جلب المعرف من متغيرات الجافاسكريبت العامة
+                if (window.deviceId === vipDeviceId || window.currentDeviceId === vipDeviceId) isVipUser = true;
+
+                // 4. محاولة جلب المعرف من الجسر البرمجي (AndroidBridge) إذا كان التطبيق يمرره من خلاله
+                if (window.AndroidBridge && typeof window.AndroidBridge.getDeviceId === 'function') {
+                    if (window.AndroidBridge.getDeviceId() === vipDeviceId) isVipUser = true;
+                }
+            } catch (e) {
+                console.log("Error checking device ID:", e);
+            }
+            // --------------------------------------------------
+
+            // التأكد من أن الإعلانات مفعلة، وأن هناك إعلانات، وأن المستخدم ليس ضمن المعرف المستثنى (VIP)
+            if (!isVipUser && typeof adConfig !== 'undefined' && adConfig.isActive && adConfig.ads && adConfig.ads.length > 0) {
                 
                 // جلب رقم الإعلان الأخير الخاص بهذا الجهاز
                 let lastAdIndex = localStorage.getItem('fawakih_ad_index') || 0;
@@ -133,6 +157,7 @@
                 }
 
             } else {
+                // في حال كان المستخدم مستثنى (VIP) أو لا توجد إعلانات، يتم إخفاء الواجهة وإغلاقها فوراً
                 document.body.style.display = 'none';
                 if (window.AndroidBridge) window.AndroidBridge.closeAd();
             }
