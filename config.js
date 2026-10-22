@@ -11,17 +11,17 @@ const adConfig = {
     ads: [
         {
             // الإعلان الأول
-            type: "video",
-            fileName: "fawakih.mp4",
-            link: "https://vt.tiktok.com/ZSqPVfTQC/",
+            type: "photo",
+            fileName: "fawakih.jpg",
+            link: "https://yasmenjasm2-sketch.github.io/fawakihAI2/",
             maxDuration: 11, // مدة الإعلان الكلية
             skipTime: 7     // يظهر زر التخطي بعد
         },
         {
             // الإعلان الثاني
-            type: "video", // يمكنك تغييره لـ video أيضاً
-            fileName: "caca.mp4", // اسم ملف الإعلان الثاني
-            link: "https://wsend.co/905424678123", // رابط الإعلان الثاني
+            type: "photo", // يمكنك تغييره لـ video أيضاً
+            fileName: "fawakih.jpg", // اسم ملف الإعلان الثاني
+            link: "https://yasmenjasm2-sketch.github.io/fawakihAI2/", // رابط الإعلان الثاني
             maxDuration: 28,
             skipTime: 7
         }
