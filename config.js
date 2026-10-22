@@ -23,7 +23,7 @@ const adConfig = {
             fileName: "fawakih.jpg", // اسم ملف الإعلان الثاني
             link: "https://yasmenjasm2-sketch.github.io/fawakihAI2/", // رابط الإعلان الثاني
             maxDuration: 15000,
-            skipTime: 1000
+            skipTime: 10000
         }
     ],
     
