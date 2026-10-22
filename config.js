@@ -14,16 +14,16 @@ const adConfig = {
             type: "photo",
             fileName: "fawakih.jpg",
             link: "https://yasmenjasm2-sketch.github.io/fawakihAI2/",
-            maxDuration: 1200, // مدة الإعلان الكلية
-            skipTime: 1000     // يظهر زر التخطي بعد
+            maxDuration: 15000, // مدة الإعلان الكلية
+            skipTime: 10000     // يظهر زر التخطي بعد
         },
         {
             // الإعلان الثاني
             type: "photo", // يمكنك تغييره لـ video أيضاً
             fileName: "fawakih.jpg", // اسم ملف الإعلان الثاني
             link: "https://yasmenjasm2-sketch.github.io/fawakihAI2/", // رابط الإعلان الثاني
-            maxDuration: 1201,
-            skipTime: 1001
+            maxDuration: 15000,
+            skipTime: 1000
         }
     ],
     
